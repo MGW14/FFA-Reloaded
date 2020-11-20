@@ -86,4 +86,11 @@ public class ConfigurationUtils {
 		}
 	}
 	
+	public void reloadConfiguration() {
+		try {
+			manager.load();
+		} catch (IOException e) {
+			System.out.println("[ConfigurationManager] Couldn't reload configuration!");
+		}
+	}
 }

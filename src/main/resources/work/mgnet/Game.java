@@ -70,7 +70,7 @@ public class Game {
 	public static void endGame() {
 		if (!isRunning) return;
 		players.clear();
-		
+		FFA.inves.clear();
 		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
 			player.setLocation(FFA.configUtils.getLocation("spawn"));
 			player.getInventory().clear();

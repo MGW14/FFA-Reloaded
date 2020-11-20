@@ -2,6 +2,8 @@ package work.mgnet;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.spongepowered.api.Sponge;
@@ -16,17 +18,23 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
+import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.plugin.Plugin;
 
 import com.google.inject.Inject;
 
+import work.mgnet.commands.FFAConfigCommand;
 import work.mgnet.commands.ForceendCommand;
 import work.mgnet.commands.ForcestartCommand;
+import work.mgnet.commands.ItemsCommand;
 import work.mgnet.commands.ReadyCommand;
 import work.mgnet.commands.ReloadmapCommand;
+import work.mgnet.commands.SetItemsCommand;
 import work.mgnet.commands.StatisticsCommand;
 import work.mgnet.utils.ConfigurationUtils;
+import work.mgnet.utils.KitUtils;
 import work.mgnet.utils.StatsUtils;
 
 @Plugin(id = "ffa", name = "FFA", version = "1.0", description = "Adds FFA")
@@ -36,6 +44,7 @@ public class FFA {
 	@ConfigDir(sharedRoot = false)
 	private Path privateConfigDir;
 
+	private static Path configDir;
 	private static File mapFile;
 	
 	public static ConfigurationUtils configUtils;
@@ -44,7 +53,11 @@ public class FFA {
 	public static File getMapFile() {
 		return mapFile;
 	}
-	
+	public static Path getConfigDir() {
+		return configDir;
+	}
+	public static ArrayList<String> edit=new ArrayList<String>();
+	public static HashMap<String, Inventory> inves = new HashMap<String, Inventory>();
 	@Listener
 	public void onServer(GameStartedServerEvent e) {
 		try {
@@ -66,12 +79,16 @@ public class FFA {
 		} catch (Exception e1) {
 			System.out.println("[FFA] Couldn't load Configuration!");
 		}
+		configDir=privateConfigDir;
 		
 		Sponge.getCommandManager().register(this, new ReadyCommand(), "ready");
 		Sponge.getCommandManager().register(this, new ForceendCommand(), "forceend");
 		Sponge.getCommandManager().register(this, new ForcestartCommand(), "forcestart"); 
 		Sponge.getCommandManager().register(this, new ReloadmapCommand(), "reloadmap");
 		Sponge.getCommandManager().register(this, new StatisticsCommand(), "statistics");
+		Sponge.getCommandManager().register(this, new FFAConfigCommand(), "ffa");
+		Sponge.getCommandManager().register(this, new ItemsCommand(), "items");
+		Sponge.getCommandManager().register(this, new SetItemsCommand(), "setitems");
 	}
 	
 	@Listener
@@ -120,4 +137,11 @@ public class FFA {
 		}
 	}
 	
+	@Listener
+	public void onInv(InteractInventoryEvent.Close e) throws Exception {
+		if (edit.contains(((Player) e.getSource()).getName())) {
+			KitUtils.saveKit("test", e.getTargetInventory(), privateConfigDir);
+			edit.remove(((Player) e.getSource()).getName());
+		}
+	}
 }
