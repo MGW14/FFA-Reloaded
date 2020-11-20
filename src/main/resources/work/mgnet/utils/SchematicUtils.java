@@ -1,5 +1,6 @@
 package work.mgnet.utils;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.spongepowered.api.Sponge;
@@ -12,8 +13,6 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.data.DataException;
 import com.sk89q.worldedit.schematic.MCEditSchematicFormat;
 import com.sk89q.worldedit.sponge.SpongeWorldEdit;
-
-import de.schlichtherle.io.File;
 
 @SuppressWarnings("deprecation")
 public class SchematicUtils {

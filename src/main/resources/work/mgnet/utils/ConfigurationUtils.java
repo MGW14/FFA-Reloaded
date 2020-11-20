@@ -5,11 +5,13 @@ import java.io.IOException;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.util.TypeTokens;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 public class ConfigurationUtils {
 	
@@ -45,6 +47,35 @@ public class ConfigurationUtils {
 		double y = node.getNode(key + "Y").getDouble();
 		double z = node.getNode(key + "Z").getDouble();
 		return new Location<World>(Sponge.getServer().getWorlds().iterator().next(), x, y, z);
+	}
+	
+	
+	
+	public void setString(String key, String value) throws ObjectMappingException {
+		node.getNode(key).setValue(TypeTokens.STRING_TOKEN, value);
+		saveConfiguration();
+	}
+	
+	public void setInteger(String key, int value) throws ObjectMappingException {
+		node.getNode(key).setValue(TypeTokens.INTEGER_TOKEN, value);
+		saveConfiguration();
+	}
+	
+	public void setDouble(String key, double value) throws ObjectMappingException {
+		node.getNode(key).setValue(TypeTokens.DOUBLE_TOKEN, value);
+		saveConfiguration();
+	}
+	
+	public void setFloat(String key, float value) throws ObjectMappingException {
+		node.getNode(key).setValue(TypeTokens.FLOAT_TOKEN, value);
+		saveConfiguration();
+	}
+	
+	public void setLocation(String key, double x, double y, double z) throws ObjectMappingException {
+		node.getNode(key + "X").setValue(TypeTokens.DOUBLE_TOKEN, x);
+		node.getNode(key + "Y").setValue(TypeTokens.DOUBLE_TOKEN, y);
+		node.getNode(key + "Z").setValue(TypeTokens.DOUBLE_TOKEN, z);
+		saveConfiguration();
 	}
 	
 	public void saveConfiguration() {

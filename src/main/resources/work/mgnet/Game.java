@@ -8,17 +8,39 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import work.mgnet.utils.CommandUtils;
-import work.mgnet.utils.SchematicUtils;
 
 public class Game {
 
-	public static ArrayList<String> players;
+	public static ArrayList<String> players = new ArrayList<String>();
 	public static boolean isRunning = false;
 	
+	public static void startGame() {
+		isRunning = true;
+		
+		CommandUtils.runCommand("tickrate " + FFA.configUtils.getFloat("tickrate"));
+		CommandUtils.runCommand("difficulty 1");
+		CommandUtils.runCommand("effect @a clear");
+		
+		Location<World> pvpLocation = FFA.configUtils.getLocation("pvp");
+		double spreadPlayerDistance = FFA.configUtils.getFloat("spreadPlayerDistance");
+		double spreadPlayerRadius = FFA.configUtils.getFloat("spreadPlayerRadius");
+		CommandUtils.runCommand("spreadplayers " + pvpLocation.getBlockX() + " " + pvpLocation.getBlockZ() + " "+spreadPlayerDistance+" " + spreadPlayerRadius + " false @a");
+		
+		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
+			player.offer(Keys.GAME_MODE, GameModes.SURVIVAL);
+			player.offer(Keys.HEALTH, 20D);
+			player.offer(Keys.FOOD_LEVEL, 20);
+			player.offer(Keys.EXPERIENCE_LEVEL, 0);
+			player.sendMessage(Text.of("§b»§7 The Game has begun. Kill everyone to win"));
+		}
+	}
+	
 	public static void playerJoin(Player p) {
-		CommandUtils.runCommand("tickrate " + p.getName() + " " + FFA.configUtils.getDouble("tickrate"));
+		CommandUtils.runCommand("tickrate " + FFA.configUtils.getDouble("tickrate") + " " + p.getName());
 		p.getInventory().clear();
 		p.setLocation(FFA.configUtils.getLocation("spawn"));
 		CommandUtils.runCommand("spawnpoint " + p.getName());
@@ -40,6 +62,7 @@ public class Game {
 			for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
 				player.sendTitle(Title.of(Text.of(winner.getName() + " won!")));
 			}
+			FFA.statsUtils.updateStats(winner, 0, 0, 1, 1);
 			endGame();
 		}
 	}
@@ -62,9 +85,7 @@ public class Game {
 		CommandUtils.runCommand("effect @a clear");
 		CommandUtils.runCommand("tickrate 20");
 		CommandUtils.runCommand("kill @e[type=!player]");
-		
-		SchematicUtils.tryPasteSchematic(FFA.getMapFile());
-		
+	
 		isRunning = false;
 	}
 	
