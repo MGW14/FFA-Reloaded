@@ -12,6 +12,7 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import work.mgnet.utils.CommandUtils;
+import work.mgnet.utils.KitUtils;
 
 public class Game {
 
@@ -71,7 +72,7 @@ public class Game {
 	public static void endGame() {
 		if (!isRunning) return;
 		players.clear();
-		FFA.inves.clear();
+		KitUtils.inves.clear();
 		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
 			player.setLocation(FFA.configUtils.getLocation("spawn"));
 			player.getInventory().clear();

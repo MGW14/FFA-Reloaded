@@ -2,7 +2,6 @@ package work.mgnet;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -21,7 +20,6 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.plugin.Plugin;
 
 import com.google.inject.Inject;
@@ -33,6 +31,7 @@ import work.mgnet.commands.ItemsCommand;
 import work.mgnet.commands.ReadyCommand;
 import work.mgnet.commands.ReloadmapCommand;
 import work.mgnet.commands.SetItemsCommand;
+import work.mgnet.commands.SetKitCommand;
 import work.mgnet.commands.StatisticsCommand;
 import work.mgnet.utils.ConfigurationUtils;
 import work.mgnet.utils.KitUtils;
@@ -48,6 +47,7 @@ public class FFA {
 	@Inject
 	public static Logger logger;
 	
+	public static String selectedKit = "default";
 	private static Path configDir;
 	private static File mapFile;
 	
@@ -60,8 +60,8 @@ public class FFA {
 	public static Path getConfigDir() {
 		return configDir;
 	}
-	public static ArrayList<String> edit=new ArrayList<String>();
-	public static HashMap<String, Inventory> inves = new HashMap<String, Inventory>();
+	public static HashMap<String, String> edit = new HashMap<String, String>();
+	
 	@Listener
 	public void onServer(GameStartedServerEvent e) {
 		try {
@@ -92,6 +92,7 @@ public class FFA {
 		Sponge.getCommandManager().register(this, new StatisticsCommand(), "statistics");
 		Sponge.getCommandManager().register(this, new FFAConfigCommand(), "ffa");
 		Sponge.getCommandManager().register(this, new ItemsCommand(), "items");
+		Sponge.getCommandManager().register(this, new SetKitCommand(), "setkit");
 		Sponge.getCommandManager().register(this, new SetItemsCommand(), "setitems");
 	}
 	
@@ -143,8 +144,8 @@ public class FFA {
 	
 	@Listener
 	public void onInv(InteractInventoryEvent.Close e) throws Exception {
-		if (edit.contains(((Player) e.getSource()).getName())) {
-			KitUtils.saveKit("test", e.getTargetInventory(), privateConfigDir);
+		if (edit.containsKey(((Player) e.getSource()).getName())) {
+			KitUtils.saveKit(edit.get(((Player) e.getSource()).getName()), e.getTargetInventory(), privateConfigDir);
 			edit.remove(((Player) e.getSource()).getName());
 		}
 	}

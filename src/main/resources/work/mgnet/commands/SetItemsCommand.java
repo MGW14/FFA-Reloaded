@@ -23,15 +23,19 @@ public class SetItemsCommand implements CommandCallable {
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
 		if (!source.hasPermission("mgw.admin")) return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
+		if (arguments.isEmpty()) {
+			source.sendMessage(Text.of("§b»§7 You need to specify the Kit"));
+			return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
+		}
 		Player p = (Player) source;
 		try {
-			p.openInventory(KitUtils.loadKit("test", FFA.getConfigDir()));
+			p.openInventory(KitUtils.loadKit(arguments.toLowerCase(), FFA.getConfigDir()));
 		} catch (Exception e) {
-			e.printStackTrace();
 			p.openInventory(Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST).build(Sponge.getPluginManager().getPlugin("ffa").get()));
+			source.sendMessage(Text.of("§b»§7 A new Kit has been created"));
 		}
 		
-		FFA.edit.add(p.getName());
+		FFA.edit.put(p.getName(), arguments.toLowerCase());
 		return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 	}
 

@@ -25,12 +25,10 @@ import org.spongepowered.api.item.inventory.ItemStack;
 
 import com.google.common.io.Files;
 
-import work.mgnet.FFA;
-
 public class KitUtils {
-	public static void resetInv() {
-		FFA.inves.clear();
-	}
+	
+	public static HashMap<String, Inventory> inves = new HashMap<String, Inventory>();
+	
 	public static void saveKit(String name, Inventory inventory, Path privateConfigDir) throws Exception {
 		File kitFile = Paths.get(privateConfigDir.toString(), name + ".kit").toFile();
 		if (!kitFile.exists())
@@ -64,7 +62,7 @@ public class KitUtils {
 		}
 		oos.close();
 		Inventory inv = Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST).build(Sponge.getPluginManager().getPlugin("ffa").get());
-		inv =deserializeInventory(items, inv);
+		inv = deserializeInventory(items, inv);
 		return inv;
 	}
 

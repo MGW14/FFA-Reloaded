@@ -9,7 +9,6 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -17,23 +16,33 @@ import org.spongepowered.api.world.World;
 import work.mgnet.FFA;
 import work.mgnet.utils.KitUtils;
 
-public class ItemsCommand implements CommandCallable {
-
+public class SetKitCommand implements CommandCallable {
+	
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
 		if (!source.hasPermission("mgw.admin")) return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
-		Player p = (Player) source;
-		if (KitUtils.inves.containsKey(p.getName())) {
-			p.openInventory(KitUtils.inves.get(p.getName()));
-			return CommandResult.builder().successCount(1).affectedItems(0).build();
+		if (arguments.isEmpty()) {
+			source.sendMessage(Text.of("户7 You need to specify the Kit"));
+			return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 		}
-		
 		try {
-			Inventory inv = KitUtils.loadKit(FFA.selectedKit, FFA.getConfigDir());
-			KitUtils.inves.put(p.getName(), inv);
-			p.openInventory(inv);
+			KitUtils.inves.clear();
+			((Player) source).openInventory(KitUtils.loadKit(arguments.toLowerCase(), FFA.getConfigDir()));
+			for (Player p : Sponge.getServer().getOnlinePlayers()) {
+				p.getInventory().clear();
+				p.sendMessage(Text.of("户7 A new Kit has been selected"));
+				if (p.getOpenInventory() != null) p.closeInventory();
+			}
+			FFA.selectedKit = arguments.toLowerCase();
 		} catch (Exception e) {
-			source.sendMessage(Text.of("户7 No Kit has been Selected!"));
+			source.sendMessage(Text.of("户c That Kit doesn't exist!"));
+			/*source.sendMessage(Text.of("户7 Creating a new Kit"));
+			FFA.selectedKit = arguments.toLowerCase();
+			try {
+				KitUtils.saveKit(arguments.toLowerCase(), Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST).build(Sponge.getPluginManager().getPlugin("ffa")), FFA.getConfigDir());
+			} catch (Exception e1) {
+				source.sendMessage(Text.of("户c Something went very wrong..."));
+			}*/
 		}
 		return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 	}
@@ -43,7 +52,6 @@ public class ItemsCommand implements CommandCallable {
 			throws CommandException {
 		return null;
 	}
-
 	@Override
 	public boolean testPermission(CommandSource source) {
 		return true;
