@@ -27,9 +27,9 @@ public class FFAConfigCommand implements CommandCallable{
 		
 		String[] args=arguments.split(" ");
 		
-		if(args[0].equalsIgnoreCase("pvpPos")) {
+		if(args[0].equalsIgnoreCase("pvp")) {
 			try {
-				FFA.configUtils.setLocation("pvp", Double.parseDouble((args[0])), Double.parseDouble((args[1])), Double.parseDouble((args[2])));
+				FFA.configUtils.setLocation("pvp", Double.parseDouble((args[1])), Double.parseDouble((args[2])), Double.parseDouble((args[3])));
 			}catch(NumberFormatException e) {
 				throw new CommandException(Text.of("Couldn't parse coordinates"));
 			} catch (ObjectMappingException e) {
@@ -37,7 +37,7 @@ public class FFAConfigCommand implements CommandCallable{
 			}
 		}else if(args[0].equalsIgnoreCase("spawn")) {
 			try {
-				FFA.configUtils.setLocation("spawn", Double.parseDouble((args[0])), Double.parseDouble((args[1])), Double.parseDouble((args[2])));
+				FFA.configUtils.setLocation("spawn", Double.parseDouble((args[1])), Double.parseDouble((args[2])), Double.parseDouble((args[3])));
 			}catch(NumberFormatException e) {
 				throw new CommandException(Text.of("Couldn't parse coordinates"));
 			} catch (ObjectMappingException e) {
@@ -45,7 +45,7 @@ public class FFAConfigCommand implements CommandCallable{
 			}
 		}else if(args[0].equalsIgnoreCase("tickrate")) {
 			try {
-				FFA.configUtils.setFloat("tickrate", Float.parseFloat(args[0]));
+				FFA.configUtils.setFloat("tickrate", Float.parseFloat(args[1]));
 			} catch (NumberFormatException e) {
 				throw new CommandException(Text.of("Couldn't parse tickrate"));
 			} catch (ObjectMappingException e) {
@@ -53,7 +53,7 @@ public class FFAConfigCommand implements CommandCallable{
 			}
 		}else if(args[0].equalsIgnoreCase("spreadPlayerRadius")){
 			try {
-				FFA.configUtils.setFloat("spreadPlayerRadius", Float.parseFloat(args[0]));
+				FFA.configUtils.setFloat("spreadPlayerRadius", Float.parseFloat(args[1]));
 			} catch (NumberFormatException e) {
 				throw new CommandException(Text.of("Couldn't parse radius"));
 			} catch (ObjectMappingException e) {
@@ -61,7 +61,7 @@ public class FFAConfigCommand implements CommandCallable{
 			}
 		}else if(args[0].equalsIgnoreCase("spreadPlayerDistance")) {
 			try {
-				FFA.configUtils.setFloat("spreadPlayerDistance", Float.parseFloat(args[0]));
+				FFA.configUtils.setFloat("spreadPlayerDistance", Float.parseFloat(args[1]));
 			} catch (NumberFormatException e) {
 				throw new CommandException(Text.of("Couldn't parse distance"));
 			} catch (ObjectMappingException e) {

@@ -17,7 +17,6 @@ import org.spongepowered.api.world.World;
 
 import work.mgnet.FFA;
 import work.mgnet.utils.KitUtils;
-import work.mgnet.utils.SchematicUtils;
 
 public class SetItemsCommand implements CommandCallable {
 
@@ -26,12 +25,13 @@ public class SetItemsCommand implements CommandCallable {
 		if (!source.hasPermission("mgw.admin")) return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 		Player p = (Player) source;
 		try {
-			p.openInventory(KitUtils.loadKit("test",FFA.getConfigDir()));
+			p.openInventory(KitUtils.loadKit("test", FFA.getConfigDir()));
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			p.openInventory(Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST).build(Sponge.getPluginManager().getPlugin("ffa").get()));
 		}
-		FFA.edit.add(((Player)source).getName());
+		
+		FFA.edit.add(p.getName());
 		return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 	}
 
@@ -40,7 +40,6 @@ public class SetItemsCommand implements CommandCallable {
 			throws CommandException {
 		return null;
 	}
-
 	@Override
 	public boolean testPermission(CommandSource source) {
 		return true;

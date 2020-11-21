@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.config.ConfigDir;
@@ -44,6 +45,9 @@ public class FFA {
 	@ConfigDir(sharedRoot = false)
 	private Path privateConfigDir;
 
+	@Inject
+	public static Logger logger;
+	
 	private static Path configDir;
 	private static File mapFile;
 	
@@ -74,10 +78,10 @@ public class FFA {
 			try {
 				statsUtils.loadStats(privateConfigDir.toFile());
 			} catch (Exception nothinghappend) {
-				System.out.println("Nothing happend lmao");
+				logger.error("Nothing happend lmao");
 			}
 		} catch (Exception e1) {
-			System.out.println("[FFA] Couldn't load Configuration!");
+			logger.error("[FFA] Couldn't load Configuration!");
 		}
 		configDir=privateConfigDir;
 		

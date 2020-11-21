@@ -40,16 +40,17 @@ public class Game {
 	}
 	
 	public static void playerJoin(Player p) {
-		CommandUtils.runCommand("tickrate " + FFA.configUtils.getDouble("tickrate") + " " + p.getName());
 		p.getInventory().clear();
 		p.setLocation(FFA.configUtils.getLocation("spawn"));
 		CommandUtils.runCommand("spawnpoint " + p.getName());
 		if (isRunning) {
 			p.offer(Keys.GAME_MODE, GameModes.SPECTATOR);
 			p.sendMessage(Text.of("§b»§7 A game is already running, after the round you will participate"));
+			CommandUtils.runCommand("tickrate " + FFA.configUtils.getDouble("tickrate") + " " + p.getName());
 		} else {
 			p.offer(Keys.GAME_MODE, GameModes.ADVENTURE);
 			p.sendMessage(Text.of("§b»§7 Type §a/items §7to see all the items you can get. When you are ready, type §a/ready§7."));
+			CommandUtils.runCommand("tickrate 20 " + p.getName());
 		}
 	}
 	

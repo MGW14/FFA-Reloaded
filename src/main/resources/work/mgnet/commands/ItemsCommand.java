@@ -9,15 +9,12 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import work.mgnet.FFA;
 import work.mgnet.utils.KitUtils;
-import work.mgnet.utils.SchematicUtils;
 
 public class ItemsCommand implements CommandCallable {
 
@@ -34,7 +31,6 @@ public class ItemsCommand implements CommandCallable {
 			p.openInventory(KitUtils.loadKit("test", FFA.getConfigDir()));
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new CommandException(Text.of("Couldn't load kit"));
 		}
 		return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 	}
