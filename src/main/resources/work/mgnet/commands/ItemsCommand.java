@@ -21,7 +21,6 @@ public class ItemsCommand implements CommandCallable {
 
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
-		if (!source.hasPermission("mgw.admin")) return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 		Player p = (Player) source;
 		if (KitUtils.inves.containsKey(p.getName())) {
 			p.openInventory(KitUtils.inves.get(p.getName()));
