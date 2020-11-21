@@ -21,9 +21,14 @@ public class ConfigurationUtils {
 	public ConfigurationUtils(File configDir) throws IOException {
 		if (!configDir.exists()) configDir.createNewFile();
 		File configFile = new File(configDir, "config.yml");
-		if (!configFile.exists()) configFile.createNewFile();
-		manager = HoconConfigurationLoader.builder().setPath(configFile.toPath()).build();
-		node = manager.createEmptyNode();
+		if (!configFile.exists()) {
+			configFile.createNewFile();
+			manager = HoconConfigurationLoader.builder().setPath(configFile.toPath()).build();
+			node = manager.createEmptyNode();
+		} else {
+			manager = HoconConfigurationLoader.builder().setPath(configFile.toPath()).build();
+			node = manager.load();
+		}
 	}
 	
 	public String getString(String key) {

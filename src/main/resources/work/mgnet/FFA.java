@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Optional;
 
-import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.config.ConfigDir;
@@ -44,9 +43,6 @@ public class FFA {
 	@ConfigDir(sharedRoot = false)
 	private Path privateConfigDir;
 
-	@Inject
-	public static Logger logger;
-	
 	public static String selectedKit = "default";
 	private static Path configDir;
 	private static File mapFile;
@@ -78,10 +74,10 @@ public class FFA {
 			try {
 				statsUtils.loadStats(privateConfigDir.toFile());
 			} catch (Exception nothinghappend) {
-				logger.error("Nothing happend lmao");
+				System.out.println("Nothing happend lmao");
 			}
 		} catch (Exception e1) {
-			logger.error("[FFA] Couldn't load Configuration!");
+			System.out.println("[FFA] Couldn't load Configuration!");
 		}
 		configDir=privateConfigDir;
 		
@@ -148,5 +144,9 @@ public class FFA {
 			KitUtils.saveKit(edit.get(((Player) e.getSource()).getName()), e.getTargetInventory(), privateConfigDir);
 			edit.remove(((Player) e.getSource()).getName());
 		}
+	}
+	
+	public static void setMapFile() {
+		mapFile = new File(getConfigDir().toFile(), configUtils.getString("map"));
 	}
 }

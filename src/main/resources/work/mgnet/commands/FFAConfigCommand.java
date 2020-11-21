@@ -67,9 +67,16 @@ public class FFAConfigCommand implements CommandCallable{
 			} catch (ObjectMappingException e) {
 				throw new CommandException(Text.of("Some unknown mapping error occured"));
 			}
+		}else if(args[0].equalsIgnoreCase("map")) {
+			try {
+				FFA.configUtils.setString("map", args[1]);
+				FFA.setMapFile();
+			} catch (ObjectMappingException e) {
+				throw new CommandException(Text.of("Some unknown mapping error occured"));
+			}
 		}
 		else {
-			source.sendMessage(Text.of("§b» §7/ffa pvp | spawn | tickrate | spreadPlayerRadius | spreadPlayerDistance"));
+			source.sendMessage(Text.of("§b» §7/ffa pvp | spawn | tickrate | spreadPlayerRadius | spreadPlayerDistance | map"));
 			return CommandResult.builder().successCount(1).build();
 		}
 		FFA.configUtils.reloadConfiguration();
