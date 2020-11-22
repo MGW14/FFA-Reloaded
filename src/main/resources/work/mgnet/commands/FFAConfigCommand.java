@@ -1,7 +1,7 @@
 package work.mgnet.commands;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +16,6 @@ import org.spongepowered.api.world.World;
 
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import work.mgnet.FFA;
-import work.mgnet.utils.CommandUtils;
 
 
 public class FFAConfigCommand implements CommandCallable{
@@ -97,16 +96,20 @@ public class FFAConfigCommand implements CommandCallable{
 	@Override
 	public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
 			throws CommandException {
-		Collection<String> liste= new ArrayList<String>();
+		List<String> liste= new ArrayList<String>();
 		String[] args=arguments.split(" ");
-		if(args.length==1) {
+		if(!arguments.contains(" ")) {
 			liste.add("pvp");
 			liste.add("spawn");
 			liste.add("tickrate");
 			liste.add("spreadPlayerRadius");
 			liste.add("spreadPlayerDistance");
+		} else if (args.length == 1 && args[0].equalsIgnoreCase("map")) {
+			for (File file : FFA.getConfigDir().toFile().listFiles()) {
+				if (!file.getName().contains(".")) liste.add(file.getName());
+			}
 		}
-		return CommandUtils.getListOfStringsMatchingLastWord(args, liste);
+		return liste;
 	}
 
 	@Override

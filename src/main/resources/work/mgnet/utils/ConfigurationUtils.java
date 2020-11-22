@@ -19,7 +19,7 @@ public class ConfigurationUtils {
 	private @NonNull HoconConfigurationLoader manager;
 	
 	public ConfigurationUtils(File configDir) throws IOException {
-		if (!configDir.exists()) configDir.createNewFile();
+		if (!configDir.exists()) configDir.mkdir();
 		File configFile = new File(configDir, "config.yml");
 		if (!configFile.exists()) {
 			configFile.createNewFile();

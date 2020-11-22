@@ -1,5 +1,8 @@
 package work.mgnet.commands;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +19,7 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import work.mgnet.FFA;
+import work.mgnet.utils.CommandUtils;
 import work.mgnet.utils.KitUtils;
 
 public class SetItemsCommand implements CommandCallable {
@@ -48,7 +52,14 @@ public class SetItemsCommand implements CommandCallable {
 	@Override
 	public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
 			throws CommandException {
-		return null;
+		Collection<String> liste= new ArrayList<String>();
+		String[] args=arguments.split(" ");
+		if(args.length==1) {
+			for (File file : FFA.getConfigDir().toFile().listFiles()) {
+				if (file.getName().endsWith(".kit")) liste.add(file.getName().split(".kit")[0]);
+			}
+		}
+		return CommandUtils.getListOfStringsMatchingLastWord(args, liste);
 	}
 	@Override
 	public boolean testPermission(CommandSource source) {
