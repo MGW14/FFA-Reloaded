@@ -16,12 +16,18 @@ import work.mgnet.Game;
 
 public class ForceendCommand implements CommandCallable {
 
+	/**
+	 * Runned when the Command gets called
+	 */
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
+		// Permission Check
 		if (!source.hasPermission("mgw.admin")) return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
-		Game.endGame();
+		Game.endGame(); // End the Game
 		return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 	}
+	
+	// Stuff noone cares about
 
 	@Override
 	public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)

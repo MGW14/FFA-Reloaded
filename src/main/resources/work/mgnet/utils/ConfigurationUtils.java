@@ -31,6 +31,10 @@ public class ConfigurationUtils {
 		}
 	}
 	
+	/*
+	 * Returns the Given Type from the Config
+	 */
+	
 	public String getString(String key) {
 		return node.getNode(key).getString();
 	}
@@ -54,7 +58,9 @@ public class ConfigurationUtils {
 		return new Location<World>(Sponge.getServer().getWorlds().iterator().next(), x, y, z);
 	}
 	
-	
+	/*
+	 * Change the Given type in the config with value
+	 */
 	
 	public void setString(String key, String value) throws ObjectMappingException {
 		node.getNode(key).setValue(TypeTokens.STRING_TOKEN, value);
@@ -83,6 +89,7 @@ public class ConfigurationUtils {
 		saveConfiguration();
 	}
 	
+	// Save the Configuration
 	public void saveConfiguration() {
 		try {
 			manager.save(node);
@@ -91,9 +98,10 @@ public class ConfigurationUtils {
 		}
 	}
 	
+	// Reload the Configuration
 	public void reloadConfiguration() {
 		try {
-			manager.load();
+			node = manager.load();
 		} catch (IOException e) {
 			System.out.println("[ConfigurationManager] Couldn't reload configuration!");
 		}

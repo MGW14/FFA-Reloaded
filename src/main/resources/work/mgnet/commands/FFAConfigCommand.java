@@ -21,12 +21,19 @@ import work.mgnet.utils.CommandUtils;
 
 public class FFAConfigCommand implements CommandCallable{
 
+	/**
+	 * Runned when the Command gets called
+	 */
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
+		// Permission check
 		if (!source.hasPermission("mgw.admin")) return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 		
-		String[] args=arguments.split(" ");
+		String[] args=arguments.split(" "); // Split Arguments
 		
+		/*
+		 * Going trough every Option, and changing them
+		 */
 		if(args[0].equalsIgnoreCase("pvp")) {
 			try {
 				FFA.configUtils.setLocation("pvp", Double.parseDouble((args[1])), Double.parseDouble((args[2])), Double.parseDouble((args[3])));
@@ -70,19 +77,23 @@ public class FFAConfigCommand implements CommandCallable{
 		}else if(args[0].equalsIgnoreCase("map")) {
 			try {
 				FFA.configUtils.setString("map", args[1]);
-				FFA.setMapFile();
+				FFA.setMapFile(args[1]); // Reload the Map File
 			} catch (ObjectMappingException e) {
 				throw new CommandException(Text.of("Some unknown mapping error occured"));
 			}
 		}
-		else {
-			source.sendMessage(Text.of("§b» §7/ffa pvp | spawn | tickrate | spreadPlayerRadius | spreadPlayerDistance | map"));
+		else { // If not in List of Arguments
+			// Send Message of Arguments
+			source.sendMessage(Text.of("§b» §7/ffa pvp | spawn | tickrate | spreadPlayerRadius | spreadPlayerDistance | map")); 
 			return CommandResult.builder().successCount(1).build();
 		}
-		FFA.configUtils.reloadConfiguration();
-		source.sendMessage(Text.of("§b» §7Successfully changed config option "+args[0]));
+		FFA.configUtils.reloadConfiguration(); // Reload the Configuration
+		source.sendMessage(Text.of("§b» §7Successfully changed config option "+args[0])); // Send them Message
 		return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 	}
+	
+	// Stuff noone cares about
+	
 	@Override
 	public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
 			throws CommandException {

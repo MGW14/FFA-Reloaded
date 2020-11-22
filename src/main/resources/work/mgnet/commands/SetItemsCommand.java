@@ -20,25 +20,31 @@ import work.mgnet.utils.KitUtils;
 
 public class SetItemsCommand implements CommandCallable {
 
+	/**
+	 * Runned when the Command gets called
+	 */
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
+		// Permission Check
 		if (!source.hasPermission("mgw.admin")) return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
-		if (arguments.isEmpty()) {
-			source.sendMessage(Text.of("户7 You need to specify the Kit"));
+		if (arguments.isEmpty()) { // Is Argument?
+			source.sendMessage(Text.of("户7 You need to specify the Kit")); // Send Message
 			return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 		}
-		Player p = (Player) source;
+		Player p = (Player) source; // Cast Player
 		try {
-			p.openInventory(KitUtils.loadKit(arguments.toLowerCase(), FFA.getConfigDir()));
+			p.openInventory(KitUtils.loadKit(arguments.toLowerCase(), FFA.getConfigDir())); // Open Kit
 		} catch (Exception e) {
-			p.openInventory(Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST).build(Sponge.getPluginManager().getPlugin("ffa").get()));
-			source.sendMessage(Text.of("户7 A new Kit has been created"));
+			p.openInventory(Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST).build(Sponge.getPluginManager().getPlugin("ffa").get())); // Create new Kit
+			source.sendMessage(Text.of("户7 A new Kit has been created")); // Message them
 		}
 		
-		FFA.edit.put(p.getName(), arguments.toLowerCase());
+		FFA.edit.put(p.getName(), arguments.toLowerCase()); // Put them to editing List
 		return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 	}
 
+	// Stuff noone cares about
+	
 	@Override
 	public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
 			throws CommandException {

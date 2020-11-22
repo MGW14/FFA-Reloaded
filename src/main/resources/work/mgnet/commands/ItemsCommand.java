@@ -19,24 +19,29 @@ import work.mgnet.utils.KitUtils;
 
 public class ItemsCommand implements CommandCallable {
 
+	/**
+	 * Runned when the Command gets called
+	 */
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
-		Player p = (Player) source;
-		if (KitUtils.inves.containsKey(p.getName())) {
-			p.openInventory(KitUtils.inves.get(p.getName()));
+		Player p = (Player) source; // Cast Player
+		if (KitUtils.inves.containsKey(p.getName())) { // If they opened it once
+			p.openInventory(KitUtils.inves.get(p.getName())); // Open The Inventory
 			return CommandResult.builder().successCount(1).affectedItems(0).build();
 		}
 		
 		try {
-			Inventory inv = KitUtils.loadKit(FFA.selectedKit, FFA.getConfigDir());
-			KitUtils.inves.put(p.getName(), inv);
-			p.openInventory(inv);
+			Inventory inv = KitUtils.loadKit(FFA.selectedKit, FFA.getConfigDir()); // Get Inventory
+			KitUtils.inves.put(p.getName(), inv); // Save Inventory for Player
+			p.openInventory(inv); // Open it
 		} catch (Exception e) {
 			source.sendMessage(Text.of("§b»§7 No Kit has been Selected!"));
 		}
 		return CommandResult.builder().successCount(1).affectedEntities(Sponge.getGame().getServer().getOnlinePlayers().size()).build();
 	}
 
+	// Stuff noone cares about
+	
 	@Override
 	public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
 			throws CommandException {

@@ -13,15 +13,21 @@ import com.google.common.collect.Lists;
 
 public class CommandUtils {
 
+	/**
+	 * Runs a Command
+	 * @param Command to Run
+	 */
 	public static void runCommand(String command) {
-		String cmd = command.split(" ")[0];
-		String parameters = command.split(" ", 2)[1];
+		String cmd = command.split(" ")[0]; // Get Command
+		String parameters = command.split(" ", 2)[1]; // Get Parameters
 		try {
-			Sponge.getCommandManager().get(cmd).get().getCallable().process(Sponge.getServer().getConsole(), parameters);
+			Sponge.getCommandManager().get(cmd).get().getCallable().process(Sponge.getServer().getConsole(), parameters); // Run Command
 		} catch (CommandException e) {
 			System.out.println("[CommandUtils] Error Couldn't run Command: " + e.getClass().getName());
 		}
 	}
+	
+	// @Scribble what the heck is this. you comment it
 	
 	public static List<String> getListOfStringsMatchingLastWord(String[] args, String... possibilities)
     {

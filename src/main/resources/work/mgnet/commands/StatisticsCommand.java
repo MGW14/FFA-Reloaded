@@ -18,11 +18,14 @@ import work.mgnet.utils.StatsUtils.Stats;
 
 public class StatisticsCommand implements CommandCallable {
 
-
+	/**
+	 * Runned when the Command gets called
+	 */
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
-		Player player = (Player) source;
+		Player player = (Player) source; // Cast Player
 		if (arguments.length() != 0) {
+			// Try to get Player
 			try {
 				if (Sponge.getServer().getPlayer(arguments).get() == null) throw new Exception();
 				player = Sponge.getServer().getPlayer(arguments).get();
@@ -30,6 +33,7 @@ public class StatisticsCommand implements CommandCallable {
 				source.sendMessage(Text.of("§b» §7That Player is not online!"));
 			}
 		}
+		// Try to show the Stats
 		try {
 			Stats stats = FFA.statsUtils.getStats(player.getUniqueId());
 			source.sendMessage(Text.of("§b» §7Showing Stats of " + player.getName()));
@@ -47,6 +51,8 @@ public class StatisticsCommand implements CommandCallable {
 		return CommandResult.builder().successCount(1).build();
 	}
 
+	// Stuff noone cares about
+	
 	@Override
 	public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
 			throws CommandException {

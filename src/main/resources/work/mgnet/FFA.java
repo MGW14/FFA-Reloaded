@@ -41,36 +41,55 @@ public class FFA {
 
 	@Inject
 	@ConfigDir(sharedRoot = false)
-	private Path privateConfigDir;
+	private Path privateConfigDir; // Given Config Direction 
 
-	public static String selectedKit = "default";
-	private static Path configDir;
-	private static File mapFile;
+	public static String selectedKit = "default"; // Currently Selected Kit
+	private static Path configDir; // Public Config Direction
+	private static File mapFile; // Public Map Schematic File
 	
-	public static ConfigurationUtils configUtils;
-	public static StatsUtils statsUtils;
+	public static ConfigurationUtils configUtils; //Configuration Utils
+	public static StatsUtils statsUtils; // Stats Utils
 	
+	public static HashMap<String, String> edit = new HashMap<String, String>(); // List for /setitems
+	
+	/**
+	 * Get The Selected Map File
+	 * @return Returns the Schematic File of the Currently Selected Map
+	 */
 	public static File getMapFile() {
 		return mapFile;
 	}
+	
+	/**
+	 * Get the Config Directory Path
+	 * @return Returns the Config Dir of the Plugin
+	 */
 	public static Path getConfigDir() {
 		return configDir;
 	}
-	public static HashMap<String, String> edit = new HashMap<String, String>();
 	
+	/**
+	 * Load Configuration and register Commands when the Server gets started.
+	 * @see ConfigurationUtils, StatsUtils
+	 */
 	@Listener
 	public void onServer(GameStartedServerEvent e) {
 		try {
-			configUtils = new ConfigurationUtils(privateConfigDir.toFile());
+			configUtils = new ConfigurationUtils(privateConfigDir.toFile()); // Set Configuration Utils
 			
+			 // Set Default Settings if they don't exist
 			if (configUtils.getString("map") == null) configUtils.setString("map", "map");
 			if (configUtils.getLocation("spawn").getBlockX() == 0) configUtils.setLocation("spawn", 0, 101, 0);
 			if (configUtils.getFloat("tickrate") == 0f) configUtils.setFloat("tickrate", 10);
 			if (configUtils.getFloat("spreadPlayerDistance") == 0f) configUtils.setFloat("spreadPlayerDistance", 25);
 			if (configUtils.getFloat("spreadPlayerRadius") == 0f) configUtils.setFloat("spreadPlayerRadius", 130);
 			
-			mapFile = new File(privateConfigDir.toFile(), configUtils.getString("map"));
-			statsUtils = new StatsUtils();
+			
+			mapFile = new File(privateConfigDir.toFile(), configUtils.getString("map")); // Set Schematics File
+			
+			statsUtils = new StatsUtils(); // Set Stats Utils
+			
+			// Try to Load Stats
 			try {
 				statsUtils.loadStats(privateConfigDir.toFile());
 			} catch (Exception nothinghappend) {
@@ -79,8 +98,10 @@ public class FFA {
 		} catch (Exception e1) {
 			System.out.println("[FFA] Couldn't load Configuration!");
 		}
-		configDir=privateConfigDir;
 		
+		configDir = privateConfigDir; // Make Config Public
+		
+		// Register Commands
 		Sponge.getCommandManager().register(this, new ReadyCommand(), "ready");
 		Sponge.getCommandManager().register(this, new ForceendCommand(), "forceend");
 		Sponge.getCommandManager().register(this, new ForcestartCommand(), "forcestart"); 
@@ -92,61 +113,95 @@ public class FFA {
 		Sponge.getCommandManager().register(this, new SetItemsCommand(), "setitems");
 	}
 	
+	/**
+	 * When a Player join's add them to the current Game
+	 * @see Game
+	 */
 	@Listener
 	public void onLogin(ClientConnectionEvent.Join e) {
-		e.setMessageCancelled(true);
-		Game.playerJoin(e.getTargetEntity());
+		e.setMessageCancelled(true); // Disable Join Message
+		Game.playerJoin(e.getTargetEntity()); // Join Game
 	}
 	
+	/**
+	 * When an Item gets dropped and the game is not running cancel the drop.
+	 */
 	@Listener
 	public void onDrop(DropItemEvent e) {
+		
+		// Cancel Drop Event when the game isn't running
 		e.getCause().first(Player.class).ifPresent((p) -> {
 			if (!Game.isRunning && !p.hasPermission("mgw.bypasslobby")) e.setCancelled(true);
 		});
 	}
 	
+	/**
+	 * When the Game is not Running disable PVP.
+	 * Or Update Statistics if the Game is runing and this Damage Event will kill the Player
+	 * @see StatsUtils
+	 */
 	@Listener
 	public void onPvP(DamageEntityEvent e) {
 		try {
 			e.getCause().first(Player.class).ifPresent((killer) -> {
-				if (Game.isRunning && e.willCauseDeath() && e.getTargetEntity().getType() == EntityTypes.PLAYER) {
+				if (Game.isRunning && e.willCauseDeath() && e.getTargetEntity().getType() == EntityTypes.PLAYER) { // When a Player dies and the game is running
+					
+					// Try to get the Player by using Dirty Code
 					for (Player p : Sponge.getServer().getOnlinePlayers()) {
 						if (e.getCause().getContext().toString().contains(p.getName())) {
-							FFA.statsUtils.updateStats(p.getUniqueId(), 1, 0, 0, 0);
-							break;
+							FFA.statsUtils.updateStats(p.getUniqueId(), 1, 0, 0, 0); // Give the killer a Kill
+							break; // We found him!
 						}
 					}
+					
+					// Add one Death and one ran Game to the Player
 					FFA.statsUtils.updateStats((Player) e.getTargetEntity(), 0, 1, 1, 0);
 				}
 			});
-			Optional<DamageSource> source = e.getCause().first(DamageSource.class);
-			if (!Game.isRunning && source.get() != DamageSources.VOID) e.setCancelled(true);
+			Optional<DamageSource> source = e.getCause().first(DamageSource.class); // Try to get the Damage Source
+			if (!Game.isRunning && source.get() != DamageSources.VOID) e.setCancelled(true); // If it's not void and the game isn't running cancel it
 		} catch (Exception f) {
-			
+			// ¯\_(ツ)_/¯
 		}
 	}
 	
+	/**
+	 * Remove the Player from the game if they disconnect
+	 * @see Game
+	 */
 	@Listener
 	public void onLeave(ClientConnectionEvent.Disconnect e) throws CommandException {
-		Game.playerOut(e.getTargetEntity());
+		Game.playerOut(e.getTargetEntity()); // Remove the Player from the Game
 	}
 	
+	/**
+	 * Remove the Player from the game if they die
+	 * @see Game
+	 */
 	@Listener
 	public void onDeath(DestructEntityEvent.Death e) {
-		if (e.getTargetEntity().getType() == EntityTypes.PLAYER) {
-			Game.playerOut((Player) e.getTargetEntity());
+		if (e.getTargetEntity().getType() == EntityTypes.PLAYER) { // If a Player died
+			Game.playerOut((Player) e.getTargetEntity()); // Remove the Player from the Game
 		}
 	}
 	
+	/**
+	 * When a Player is closing their inventory and the invenory is a Kit Inventory
+	 * @see KitUtils
+	 */
 	@Listener
 	public void onInv(InteractInventoryEvent.Close e) throws Exception {
-		if (edit.containsKey(((Player) e.getSource()).getName())) {
-			KitUtils.saveKit(edit.get(((Player) e.getSource()).getName()), e.getTargetInventory(), privateConfigDir);
-			edit.remove(((Player) e.getSource()).getName());
+		if (edit.containsKey(((Player) e.getSource()).getName())) { // If the Player is in the /setitems list
+			KitUtils.saveKit(edit.get(((Player) e.getSource()).getName()), e.getTargetInventory(), privateConfigDir); // Save the Inventory to the Kit
+			edit.remove(((Player) e.getSource()).getName()); // Player is no longer editing
 		}
 	}
 	
-	public static void setMapFile() {
-		mapFile = new File(getConfigDir().toFile(), configUtils.getString("map"));
+	/**
+	 * Update the Map File
+	 * @see Game
+	 */
+	public static void setMapFile(String map) {
+		mapFile = new File(configDir.toFile(), map); // Set Schematics File
 	}
 }
