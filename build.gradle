@@ -15,6 +15,7 @@ repositories {
     	name = 'enginehub-repo'
     	url = 'https://maven.enginehub.org/repo/'
     }
+    maven { url 'http://ci.athion.net/job/FastAsyncWorldEdit/ws/mvn/' }
     maven {
         name = 'sponge-repo'
         url = 'https://repo.spongepowered.org/maven'
@@ -30,6 +31,8 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     
     compile 'org.spongepowered:spongeapi:7.2.0'
+    
+    compile 'com.boydti:fawe-api:latest'
     
     compile 'com.sk89q.worldedit:worldedit-core:6.1'
     

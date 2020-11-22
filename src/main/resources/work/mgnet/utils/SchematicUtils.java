@@ -4,34 +4,43 @@ import java.io.File;
 import java.io.IOException;
 
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.Text;
 
-import com.sk89q.worldedit.CuboidClipboard;
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.data.DataException;
-import com.sk89q.worldedit.schematic.SchematicFormat;
+import com.sk89q.worldedit.extent.clipboard.ClipboardFormats;
 import com.sk89q.worldedit.sponge.SpongeWorldEdit;
 
-@SuppressWarnings("deprecation")
+
 public class SchematicUtils {
 
 	/**
 	 * Paste a Schematic
 	 * @param Schematic File
-	 * @throws MaxChangedBlocksException
-	 * @throws DataException
-	 * @throws IOException
+	 * @throws IOException 
 	 */
-	public static void pasteSchematic(File schemFile) throws MaxChangedBlocksException, DataException, IOException {
+	public static void pasteSchematic(File schemFile) throws IOException {
 		if (!schemFile.exists()) return; // Return if it doesn't exist
 		
-		// Get Infinit Edit Session
-		EditSession sess = WorldEdit.getInstance().getEditSessionFactory().getEditSession(SpongeWorldEdit.inst().getWorld(Sponge.getServer().getWorlds().iterator().next()), -1);
+		for (Player p : Sponge.getServer().getOnlinePlayers()) {
+			p.sendMessage(Text.of("§b»§7 Reloading the Map! This may take a while"));
+		}
+		ClipboardFormats.findByFile(schemFile).load(schemFile).paste(SpongeWorldEdit.inst().getWorld(Sponge.getServer().getWorlds().iterator().next()), new Vector(0, 0, 0));
 		
-		CuboidClipboard cl = SchematicFormat.getFormat(schemFile).load(schemFile); // Load Clipboard with Schematic
-		cl.paste(sess, new Vector(0, 0, 0), false, true); // Paste Clipboard
+		/*ClipboardFormat format = ClipboardFormat.findByFile(schemFile);
+		ClipboardReader reader = format.getReader(new FileInputStream(schemFile));
+		Clipboard clipboard = format.d.rea(sess.getWorld().getWorldData());*/
+		
+		//CuboidClipboard cl = MCEditSchematicFormat.getFormat(schemFile).load(schemFile);
+		//cl.paste(sess, new Vector(0,0,0), false, true);
+		
+	    /*Operation operation = new ClipboardHolder(clipboard, sess.getWorld().getWorldData())
+	            .createPaste(sess, sess.getWorld().getWorldData())
+	            .to(new Vector(0, 0, 0))
+	            .ignoreAirBlocks(false)
+	            .build();
+	    Operations.complete(operation);*/
 	}
 	
 	/**
@@ -41,8 +50,8 @@ public class SchematicUtils {
 	public static void tryPasteSchematic(File schemFile) {
 		try {
 			pasteSchematic(schemFile);
-		} catch (Exception e) {
-			System.out.println("[SchematicUtils] Couldn't paste Schematic");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
