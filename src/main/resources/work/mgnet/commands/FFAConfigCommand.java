@@ -80,10 +80,22 @@ public class FFAConfigCommand implements CommandCallable{
 			} catch (ObjectMappingException e) {
 				throw new CommandException(Text.of("Some unknown mapping error occured"));
 			}
+		}else if(args[0].equalsIgnoreCase("gamemode")) {
+			try {
+				FFA.configUtils.setString("gamemode", args[1]);
+			} catch (ObjectMappingException e) {
+				throw new CommandException(Text.of("Some unknown mapping error occured"));
+			}
+		}else if(args[0].equalsIgnoreCase("hitdelay")) {
+			try {
+				FFA.configUtils.setString("hitdelay", args[1]);
+			} catch (ObjectMappingException e) {
+				throw new CommandException(Text.of("Some unknown mapping error occured"));
+			}
 		}
 		else { // If not in List of Arguments
 			// Send Message of Arguments
-			source.sendMessage(Text.of("§b» §7/ffa pvp | spawn | tickrate | spreadPlayerRadius | spreadPlayerDistance | map")); 
+			source.sendMessage(Text.of("§b» §7/ffa pvp | spawn | tickrate | spreadPlayerRadius | spreadPlayerDistance | map | gamemode | hitdelay")); 
 			return CommandResult.builder().successCount(1).build();
 		}
 		FFA.configUtils.reloadConfiguration(); // Reload the Configuration
@@ -104,10 +116,19 @@ public class FFAConfigCommand implements CommandCallable{
 			liste.add("tickrate");
 			liste.add("spreadPlayerRadius");
 			liste.add("spreadPlayerDistance");
+			liste.add("map");
+			liste.add("gamemode");
+			liste.add("hitdelay");
 		} else if (args.length == 1 && args[0].equalsIgnoreCase("map")) {
 			for (File file : FFA.getConfigDir().toFile().listFiles()) {
 				if (!file.getName().contains(".")) liste.add(file.getName());
 			}
+		} else if (args.length == 1 && args[0].equalsIgnoreCase("gamemode")) {
+			liste.add("ffa");
+			liste.add("teamdeathmatch");
+		} else if (args.length == 1 && args[0].equalsIgnoreCase("hitdelay")) {
+			liste.add("true");
+			liste.add("false");
 		}
 		return liste;
 	}

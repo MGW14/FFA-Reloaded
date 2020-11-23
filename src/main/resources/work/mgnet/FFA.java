@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -34,6 +35,7 @@ import work.mgnet.commands.SetKitCommand;
 import work.mgnet.commands.StatisticsCommand;
 import work.mgnet.utils.ConfigurationUtils;
 import work.mgnet.utils.KitUtils;
+import work.mgnet.utils.SoundsUtils;
 import work.mgnet.utils.StatsUtils;
 
 @Plugin(id = "ffa", name = "FFA", version = "1.0", description = "Adds FFA")
@@ -83,7 +85,8 @@ public class FFA {
 			if (configUtils.getFloat("tickrate") == 0f) configUtils.setFloat("tickrate", 10);
 			if (configUtils.getFloat("spreadPlayerDistance") == 0f) configUtils.setFloat("spreadPlayerDistance", 25);
 			if (configUtils.getFloat("spreadPlayerRadius") == 0f) configUtils.setFloat("spreadPlayerRadius", 130);
-			
+			if (configUtils.getString("map") == null) configUtils.setString("map", "TheNile");
+			if (configUtils.getString("hitdelay") == null) configUtils.setString("hitdelay", "false");
 			
 			mapFile = new File(privateConfigDir.toFile(), configUtils.getString("map")); // Set Schematics File
 			
@@ -144,15 +147,23 @@ public class FFA {
 	public void onPvP(DamageEntityEvent e) {
 		try {
 			e.getCause().first(Player.class).ifPresent((killer) -> {
+				
+				if (Game.isRunning && e.getTargetEntity().getType() == EntityTypes.PLAYER) {
+					if (Game.team1.contains(((Player) e.getTargetEntity()).getName()) && Game.team1.contains(killer.getName())) e.setBaseDamage(0);
+					else if (Game.team2.contains(((Player) e.getTargetEntity()).getName()) && Game.team2.contains(killer.getName())) e.setBaseDamage(0);
+				}
 				if (Game.isRunning && e.willCauseDeath() && e.getTargetEntity().getType() == EntityTypes.PLAYER) { // When a Player dies and the game is running
 					
 					// Try to get the Player by using Dirty Code
 					for (Player p : Sponge.getServer().getOnlinePlayers()) {
 						if (e.getCause().getContext().toString().contains(p.getName())) {
 							FFA.statsUtils.updateStats(p.getUniqueId(), 1, 0, 0, 0); // Give the killer a Kill
+							SoundsUtils.playSound(SoundTypes.ENTITY_PLAYER_LEVELUP, p);
 							break; // We found him!
 						}
 					}
+					
+					SoundsUtils.playSound(SoundTypes.ENTITY_ELDER_GUARDIAN_CURSE, (Player) e.getTargetEntity());
 					
 					// Add one Death and one ran Game to the Player
 					FFA.statsUtils.updateStats((Player) e.getTargetEntity(), 0, 1, 1, 0);
@@ -161,7 +172,7 @@ public class FFA {
 			Optional<DamageSource> source = e.getCause().first(DamageSource.class); // Try to get the Damage Source
 			if (!Game.isRunning && source.get() != DamageSources.VOID) e.setCancelled(true); // If it's not void and the game isn't running cancel it
 		} catch (Exception f) {
-			// ¯\_(ツ)_/¯
+			//
 		}
 	}
 	

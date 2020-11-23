@@ -7,7 +7,6 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.extent.clipboard.ClipboardFormats;
 import com.sk89q.worldedit.sponge.SpongeWorldEdit;
@@ -27,20 +26,6 @@ public class SchematicUtils {
 			p.sendMessage(Text.of("§b»§7 Reloading the Map! This may take a while"));
 		}
 		ClipboardFormats.findByFile(schemFile).load(schemFile).paste(SpongeWorldEdit.inst().getWorld(Sponge.getServer().getWorlds().iterator().next()), new Vector(0, 0, 0));
-		
-		/*ClipboardFormat format = ClipboardFormat.findByFile(schemFile);
-		ClipboardReader reader = format.getReader(new FileInputStream(schemFile));
-		Clipboard clipboard = format.d.rea(sess.getWorld().getWorldData());*/
-		
-		//CuboidClipboard cl = MCEditSchematicFormat.getFormat(schemFile).load(schemFile);
-		//cl.paste(sess, new Vector(0,0,0), false, true);
-		
-	    /*Operation operation = new ClipboardHolder(clipboard, sess.getWorld().getWorldData())
-	            .createPaste(sess, sess.getWorld().getWorldData())
-	            .to(new Vector(0, 0, 0))
-	            .ignoreAirBlocks(false)
-	            .build();
-	    Operations.complete(operation);*/
 	}
 	
 	/**

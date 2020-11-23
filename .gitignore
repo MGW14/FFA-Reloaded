@@ -10,3 +10,4 @@ gradlew
 .project
 gradle/
 .settings/
+/target/

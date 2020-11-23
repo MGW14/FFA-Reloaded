@@ -8,12 +8,14 @@ import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import work.mgnet.Game;
+import work.mgnet.utils.SoundsUtils;
 
 public class ReadyCommand implements CommandCallable {
 
@@ -31,6 +33,8 @@ public class ReadyCommand implements CommandCallable {
 		Game.players.add(src.getName()); // Add Player
 		
 		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) player.sendMessage(Text.of("§b»§a " + src.getName() + "§7 is now ready!")); // Give everyone that message
+		
+		SoundsUtils.playSound(SoundTypes.BLOCK_NOTE_PLING, .3f + (Game.players.size() / 10));
 		
 		if (Game.players.size() == Sponge.getGame().getServer().getOnlinePlayers().size()) { // If Everyone Ready
 			Game.startGame(); // Start Game

@@ -4,21 +4,27 @@ import java.util.ArrayList;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import work.mgnet.utils.CommandUtils;
 import work.mgnet.utils.KitUtils;
+import work.mgnet.utils.SoundsUtils;
 
 public class Game {
 
 	public static ArrayList<String> players = new ArrayList<String>(); // List of playing Players
 	public static boolean isRunning = false; // Is the Game Running
-	
+	public static ArrayList<String> team1 = new ArrayList<>();
+	public static ArrayList<String> team2 = new ArrayList<>();
 	
 	/**
 	 * Starts the Game by setting a bunch of settings like tickrate difficulty etc..
@@ -26,6 +32,42 @@ public class Game {
 	 */
 	public static void startGame() {
 		isRunning = true; // Make it Running
+		
+		SoundsUtils.playSound(SoundTypes.ENTITY_PLAYER_LEVELUP);
+		
+		if (FFA.configUtils.getString("gamemode").equalsIgnoreCase("teamdeathmatch")) {
+	        // get size players the list 
+	        int size = players.size(); 
+	  
+	        // First size)/2 element copy into list 
+	        // first and rest second list 
+	        String team1str = "§b» §7Team Blue:";
+	        String team2str = "§b» §7Team Red:";
+	        for (int i = 0; i < size / 2; i++) {
+	            team1.add(players.get(i)); 
+	            ItemStack teambluehelmet = ItemStack.builder().itemType(ItemTypes.LEATHER_HELMET).quantity(1).build();
+	            teambluehelmet.offer(Keys.COLOR, Color.BLUE);
+	            Sponge.getServer().getPlayer(players.get(i)).get().setHelmet(teambluehelmet);
+	            team1str = team1str + " " + players.get(i);
+	            
+	        }
+	  
+	        // Second size)/2 element copy into list 
+	        // first and rest second list 
+	        for (int i = size / 2; i < size; i++) { 
+	            team2.add(players.get(i));
+	            ItemStack teamredhelmet = ItemStack.builder().itemType(ItemTypes.LEATHER_HELMET).quantity(1).build();
+	            teamredhelmet.offer(Keys.COLOR, Color.RED);
+	            Sponge.getServer().getPlayer(players.get(i)).get().setHelmet(teamredhelmet);
+	        	team2str = team2str + " " + players.get(i);
+	        }
+	        
+			for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
+				player.sendMessage(Text.of(team1str));
+				player.sendMessage(Text.of(team2str));
+			}
+	        
+		}
 		
 		CommandUtils.runCommand("tickrate " + FFA.configUtils.getFloat("tickrate")); // Change Tickrate
 		CommandUtils.runCommand("difficulty 1"); // Change Difficulty
@@ -52,6 +94,9 @@ public class Game {
 	 * @param Player that will join the Game
 	 */
 	public static void playerJoin(Player p) {
+		
+		
+		
 		p.getInventory().clear(); // Clear their Inventory
 		p.setLocation(FFA.configUtils.getLocation("spawn")); // Teleport them to Spawn
 		CommandUtils.runCommand("spawnpoint " + p.getName()); // Set their respawn Point to Spawn
@@ -72,15 +117,40 @@ public class Game {
 	 */
 	public static void playerOut(Player p) {
 		if (!players.contains(p.getName())) return; // If they aren't in the Game quit
+		
 		players.remove(p.getName()); // Remove them from the Game
+		
+		if (team1.contains(p.getName())) team1.remove(p.getName());
+		if (team2.contains(p.getName())) team2.remove(p.getName());
+		
 		p.offer(Keys.GAME_MODE, GameModes.SPECTATOR); // Set them to Spectator
-		if (players.size() == 1) { // If one Player remains
+		if (FFA.configUtils.getString("gamemode").equalsIgnoreCase("ffa") && players.size() == 1) { // If one Player remains
 			Player winner = Sponge.getServer().getPlayer(players.get(0)).get(); // Get the Winner
 			for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
 				player.sendTitle(Title.of(Text.of(winner.getName() + " won!"))); // Let everyone know!
 			}
 			FFA.statsUtils.updateStats(winner, 0, 0, 1, 1); // Give them a game and a win
 			endGame(); // End The Game
+		} else if (FFA.configUtils.getString("gamemode").equalsIgnoreCase("teamdeathmatch")) {
+			if (team1.size() == 0) {
+				for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
+					player.sendTitle(Title.of(Text.of("Team Red won!"))); // Let everyone know!
+				}
+				for (String pl : team2) {
+					Player player = Sponge.getServer().getPlayer(pl).get();
+					FFA.statsUtils.updateStats(player, 0, 0, 1, 1);
+				}
+				endGame();
+			} else if (team2.size() == 0) {
+				for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
+					player.sendTitle(Title.of(Text.of("Team Blue won!"))); // Let everyone know!
+				}
+				for (String pl : team1) {
+					Player player = Sponge.getServer().getPlayer(pl).get();
+					FFA.statsUtils.updateStats(player, 0, 0, 1, 1);
+				}
+				endGame();
+			}
 		}
 	}
 	
@@ -90,6 +160,8 @@ public class Game {
 	public static void endGame() {
 		if (!isRunning) return; // Cannot end the Game if it isn't running
 		players.clear(); // Clear the Players
+		team1.clear();
+		team2.clear();
 		KitUtils.inves.clear(); // Reset the Inventories
 		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) { // Every Player
 			player.setLocation(FFA.configUtils.getLocation("spawn")); // Tp to Spawn
@@ -112,6 +184,8 @@ public class Game {
 		CommandUtils.runCommand("tickrate 20");
 		CommandUtils.runCommand("kill @e[type=!player]");
 	
+		SoundsUtils.playSound(SoundTypes.ENTITY_FIREWORK_BLAST_FAR);
+		
 		isRunning = false; // Set Game not running
 	}
 	

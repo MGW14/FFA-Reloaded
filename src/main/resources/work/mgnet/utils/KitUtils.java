@@ -86,7 +86,9 @@ public class KitUtils {
 
 				container.set(SLOT, i);
 				container.set(STACK, serializeItemStack(stack.get()));
-
+				
+				
+				
 				slots.add(container);
 			}
 
@@ -106,7 +108,6 @@ public class KitUtils {
 
 			try {
 				stack = deserializeItemStack(slot.getView(STACK).get());
-
 				stacks.put(i, stack);
 			} catch (NoSuchElementException e) {
 				stacks.remove(i);
