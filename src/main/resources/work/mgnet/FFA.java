@@ -13,7 +13,8 @@ import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.weather.Lightning;
+import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
@@ -143,7 +144,7 @@ public class FFA {
 	
 	/**
 	 * When the Game is not Running disable PVP.
-	 * Or Update Statistics if the Game is runing and this Damage Event will kill the Player
+	 * Or Update Statistics if the Game is running and this Damage Event will kill the Player
 	 * @see StatsUtils
 	 */
 	@Listener
@@ -242,15 +243,22 @@ public class FFA {
 	public long noTime = 0L;
 	
 	/**
-	 * When a player dies, spawn lightning
+	 * When a player dies, do stuff
 	 * @see Game
 	 */
 	@Listener
 	public void onPlayerDeath(DestructEntityEvent.Death event) {
-		Player player = (Player) event.getTargetEntity();
-		Lightning bolt = (Lightning) player.getWorld().createEntity(EntityTypes.LIGHTNING, player.getPosition());
-        	bolt.setEffect(true);
-        	player.getWorld().spawnEntity(bolt);
+		if (!(event.getTargetEntity() instanceof Player)) {
+	        return;
+		}
+		Player eventplayer = (Player) event.getTargetEntity();
+		for (Player player : Sponge.getServer().getOnlinePlayers()) {
+			ParticleEffect effect = ParticleEffect.builder()
+			        .type(ParticleTypes.FIREWORKS)
+			        .build();
+			player.spawnParticles(effect, eventplayer.getPosition().add(0, 1, 0));
+			player.playSound(SoundTypes.ENTITY_PLAYER_LEVELUP, player.getPosition(), 1);
+		}
     
 	}
 	
