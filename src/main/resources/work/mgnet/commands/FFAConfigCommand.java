@@ -30,72 +30,81 @@ public class FFAConfigCommand implements CommandCallable{
 		
 		String[] args=arguments.split(" "); // Split Arguments
 		
-		/*
-		 * Going trough every Option, and changing them
-		 */
-		if(args[0].equalsIgnoreCase("pvp")) {
-			try {
-				FFA.configUtils.setLocation("pvp", Double.parseDouble((args[1])), Double.parseDouble((args[2])), Double.parseDouble((args[3])));
-			}catch(NumberFormatException e) {
-				throw new CommandException(Text.of("Couldn't parse coordinates"));
-			} catch (ObjectMappingException e) {
-				throw new CommandException(Text.of("Some unknown mapping error occured"));
+		if (args.length >= 3) {
+		
+			/*
+		 	* Going trough every Option, and changing them
+		 	*/
+			if(args[1].equalsIgnoreCase("pvp")) {
+				try {
+					FFA.configUtils.setLocation(args[0] + "_pvp", Double.parseDouble((args[2])), Double.parseDouble((args[3])), Double.parseDouble((args[4])));
+				}catch(NumberFormatException e) {
+					throw new CommandException(Text.of("Couldn't parse coordinates"));
+				} catch (ObjectMappingException e) {
+					throw new CommandException(Text.of("Some unknown mapping error occured"));
+				}
+			}else if(args[1].equalsIgnoreCase("spawn")) {
+				try {
+					FFA.configUtils.setLocation(args[0] + "_spawn", Double.parseDouble((args[2])), Double.parseDouble((args[3])), Double.parseDouble((args[4])));
+				}catch(NumberFormatException e) {
+					throw new CommandException(Text.of("Couldn't parse coordinates"));
+				} catch (ObjectMappingException e) {
+					throw new CommandException(Text.of("Some unknown mapping error occured"));
+				}
+			}else if(args[1].equalsIgnoreCase("tickrate")) {
+				try {
+					FFA.configUtils.setFloat(args[0] + "_tickrate", Float.parseFloat(args[2]));
+				} catch (NumberFormatException e) {
+					throw new CommandException(Text.of("Couldn't parse tickrate"));
+				} catch (ObjectMappingException e) {
+					throw new CommandException(Text.of("Some unknown mapping error occured"));
+				}
+			}else if(args[1].equalsIgnoreCase("spreadPlayerRadius")){
+				try {
+					FFA.configUtils.setFloat(args[0] + "_spreadPlayerRadius", Float.parseFloat(args[2]));
+				} catch (NumberFormatException e) {
+					throw new CommandException(Text.of("Couldn't parse radius"));
+				} catch (ObjectMappingException e) {
+					throw new CommandException(Text.of("Some unknown mapping error occured"));
+				}
+			}else if(args[1].equalsIgnoreCase("spreadPlayerDistance")) {
+				try {
+					FFA.configUtils.setFloat(args[0] + "_spreadPlayerDistance", Float.parseFloat(args[2]));
+				} catch (NumberFormatException e) {
+					throw new CommandException(Text.of("Couldn't parse distance"));
+				} catch (ObjectMappingException e) {
+					throw new CommandException(Text.of("Some unknown mapping error occured"));
+				}
+			}else if(args[1].equalsIgnoreCase("gamemode")) {
+				try {
+					FFA.configUtils.setString(args[0] + "_gamemode", args[2]);
+				} catch (ObjectMappingException e) {
+					throw new CommandException(Text.of("Some unknown mapping error occured"));
+				}
+			}else if(args[1].equalsIgnoreCase("crystal1")) {
+				try {
+					FFA.configUtils.setLocation(args[0] + "_crystal1", Double.parseDouble((args[2])), Double.parseDouble((args[3])), Double.parseDouble((args[4])));
+				}catch(NumberFormatException e) {
+					throw new CommandException(Text.of("Couldn't parse coordinates"));
+				} catch (ObjectMappingException e) {
+					throw new CommandException(Text.of("Some unknown mapping error occured"));
+				}
+			}else if(args[1].equalsIgnoreCase("crystal2")) {
+				try {
+					FFA.configUtils.setLocation(args[0] + "_crystal2", Double.parseDouble((args[2])), Double.parseDouble((args[3])), Double.parseDouble((args[4])));
+				}catch(NumberFormatException e) {
+					throw new CommandException(Text.of("Couldn't parse coordinates"));
+				} catch (ObjectMappingException e) {
+					throw new CommandException(Text.of("Some unknown mapping error occured"));
+				}
 			}
-		}else if(args[0].equalsIgnoreCase("spawn")) {
-			try {
-				FFA.configUtils.setLocation("spawn", Double.parseDouble((args[1])), Double.parseDouble((args[2])), Double.parseDouble((args[3])));
-			}catch(NumberFormatException e) {
-				throw new CommandException(Text.of("Couldn't parse coordinates"));
-			} catch (ObjectMappingException e) {
-				throw new CommandException(Text.of("Some unknown mapping error occured"));
+			else { // If not in List of Arguments
+				// Send Message of Arguments
+				source.sendMessage(Text.of("§b» §7/ffa <mapname> pvp | tickrate | spreadPlayerRadius | spreadPlayerDistance | gamemode | crystal1 | crystal2")); 
+				return CommandResult.builder().successCount(1).build();
 			}
-		}else if(args[0].equalsIgnoreCase("tickrate")) {
-			try {
-				FFA.configUtils.setFloat("tickrate", Float.parseFloat(args[1]));
-			} catch (NumberFormatException e) {
-				throw new CommandException(Text.of("Couldn't parse tickrate"));
-			} catch (ObjectMappingException e) {
-				throw new CommandException(Text.of("Some unknown mapping error occured"));
-			}
-		}else if(args[0].equalsIgnoreCase("spreadPlayerRadius")){
-			try {
-				FFA.configUtils.setFloat("spreadPlayerRadius", Float.parseFloat(args[1]));
-			} catch (NumberFormatException e) {
-				throw new CommandException(Text.of("Couldn't parse radius"));
-			} catch (ObjectMappingException e) {
-				throw new CommandException(Text.of("Some unknown mapping error occured"));
-			}
-		}else if(args[0].equalsIgnoreCase("spreadPlayerDistance")) {
-			try {
-				FFA.configUtils.setFloat("spreadPlayerDistance", Float.parseFloat(args[1]));
-			} catch (NumberFormatException e) {
-				throw new CommandException(Text.of("Couldn't parse distance"));
-			} catch (ObjectMappingException e) {
-				throw new CommandException(Text.of("Some unknown mapping error occured"));
-			}
-		}else if(args[0].equalsIgnoreCase("map")) {
-			try {
-				FFA.configUtils.setString("map", args[1]);
-				FFA.setMapFile(args[1]); // Reload the Map File
-			} catch (ObjectMappingException e) {
-				throw new CommandException(Text.of("Some unknown mapping error occured"));
-			}
-		}else if(args[0].equalsIgnoreCase("gamemode")) {
-			try {
-				FFA.configUtils.setString("gamemode", args[1]);
-			} catch (ObjectMappingException e) {
-				throw new CommandException(Text.of("Some unknown mapping error occured"));
-			}
-		}else if(args[0].equalsIgnoreCase("hitdelay")) {
-			try {
-				FFA.configUtils.setString("hitdelay", args[1]);
-			} catch (ObjectMappingException e) {
-				throw new CommandException(Text.of("Some unknown mapping error occured"));
-			}
-		}
-		else { // If not in List of Arguments
-			// Send Message of Arguments
-			source.sendMessage(Text.of("§b» §7/ffa pvp | spawn | tickrate | spreadPlayerRadius | spreadPlayerDistance | map | gamemode | hitdelay")); 
+		} else {
+			source.sendMessage(Text.of("§b» §7/ffa <mapname> pvp | tickrate | spreadPlayerRadius | spreadPlayerDistance | gamemode | crystal1 | crystal2")); 
 			return CommandResult.builder().successCount(1).build();
 		}
 		FFA.configUtils.reloadConfiguration(); // Reload the Configuration
@@ -111,6 +120,10 @@ public class FFAConfigCommand implements CommandCallable{
 		List<String> liste= new ArrayList<String>();
 		String[] args=arguments.split(" ");
 		if(!arguments.contains(" ")) {
+			for (File file : FFA.getConfigDir().toFile().listFiles()) {
+				if (!file.getName().contains(".")) liste.add(file.getName());
+			}
+		} else if (args.length == 1 && args[0].equalsIgnoreCase("map")) {
 			liste.add("pvp");
 			liste.add("spawn");
 			liste.add("tickrate");
@@ -118,17 +131,12 @@ public class FFAConfigCommand implements CommandCallable{
 			liste.add("spreadPlayerDistance");
 			liste.add("map");
 			liste.add("gamemode");
-			liste.add("hitdelay");
-		} else if (args.length == 1 && args[0].equalsIgnoreCase("map")) {
-			for (File file : FFA.getConfigDir().toFile().listFiles()) {
-				if (!file.getName().contains(".")) liste.add(file.getName());
-			}
-		} else if (args.length == 1 && args[0].equalsIgnoreCase("gamemode")) {
+			liste.add("crystal1");
+			liste.add("crystal2");
+		} else if (args.length == 2 && args[1].equalsIgnoreCase("gamemode")) {
 			liste.add("ffa");
 			liste.add("teamdeathmatch");
-		} else if (args.length == 1 && args[0].equalsIgnoreCase("hitdelay")) {
-			liste.add("true");
-			liste.add("false");
+			liste.add("cores");
 		}
 		return liste;
 	}

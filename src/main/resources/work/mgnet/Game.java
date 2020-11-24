@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.entity.EnderCrystal;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.item.ItemTypes;
@@ -25,6 +27,42 @@ public class Game {
 	public static boolean isRunning = false; // Is the Game Running
 	public static ArrayList<String> team1 = new ArrayList<>();
 	public static ArrayList<String> team2 = new ArrayList<>();
+	public static int canRespawnTeam1;
+	public static int canRespawnTeam2;
+	public static EnderCrystal crystal1;
+	public static EnderCrystal crystal2;
+	
+	private static void splitTeams() {
+		// get size players the list 
+        int size = players.size(); 
+  
+        // First size)/2 element copy into list 
+        // first and rest second list 
+        String team1str = "§b» §7Team Blue:";
+        String team2str = "§b» §7Team Red:";
+        for (int i = 0; i < size / 2; i++) {
+            team1.add(players.get(i)); 
+            ItemStack teambluehelmet = ItemStack.builder().itemType(ItemTypes.LEATHER_HELMET).quantity(1).build();
+            teambluehelmet.offer(Keys.COLOR, Color.BLUE);
+            Sponge.getServer().getPlayer(players.get(i)).get().setHelmet(teambluehelmet);
+            team1str = team1str + " " + players.get(i);
+        }
+  
+        // Second size)/2 element copy into list 
+        // first and rest second list 
+        for (int i = size / 2; i < size; i++) { 
+            team2.add(players.get(i));
+            ItemStack teamredhelmet = ItemStack.builder().itemType(ItemTypes.LEATHER_HELMET).quantity(1).build();
+            teamredhelmet.offer(Keys.COLOR, Color.RED);
+            Sponge.getServer().getPlayer(players.get(i)).get().setHelmet(teamredhelmet);
+        	team2str = team2str + " " + players.get(i);
+        }
+        
+		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
+			player.sendMessage(Text.of(team1str));
+			player.sendMessage(Text.of(team2str));
+		}
+	}
 	
 	/**
 	 * Starts the Game by setting a bunch of settings like tickrate difficulty etc..
@@ -35,48 +73,36 @@ public class Game {
 		
 		SoundsUtils.playSound(SoundTypes.ENTITY_PLAYER_LEVELUP);
 		
-		if (FFA.configUtils.getString("gamemode").equalsIgnoreCase("teamdeathmatch")) {
-	        // get size players the list 
-	        int size = players.size(); 
-	  
-	        // First size)/2 element copy into list 
-	        // first and rest second list 
-	        String team1str = "§b» §7Team Blue:";
-	        String team2str = "§b» §7Team Red:";
-	        for (int i = 0; i < size / 2; i++) {
-	            team1.add(players.get(i)); 
-	            ItemStack teambluehelmet = ItemStack.builder().itemType(ItemTypes.LEATHER_HELMET).quantity(1).build();
-	            teambluehelmet.offer(Keys.COLOR, Color.BLUE);
-	            Sponge.getServer().getPlayer(players.get(i)).get().setHelmet(teambluehelmet);
-	            team1str = team1str + " " + players.get(i);
-	            
-	        }
-	  
-	        // Second size)/2 element copy into list 
-	        // first and rest second list 
-	        for (int i = size / 2; i < size; i++) { 
-	            team2.add(players.get(i));
-	            ItemStack teamredhelmet = ItemStack.builder().itemType(ItemTypes.LEATHER_HELMET).quantity(1).build();
-	            teamredhelmet.offer(Keys.COLOR, Color.RED);
-	            Sponge.getServer().getPlayer(players.get(i)).get().setHelmet(teamredhelmet);
-	        	team2str = team2str + " " + players.get(i);
-	        }
-	        
-			for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
-				player.sendMessage(Text.of(team1str));
-				player.sendMessage(Text.of(team2str));
-			}
-	        
+		if (FFA.configUtils.getString(FFA.mapFile.getName() + "_gamemode").equalsIgnoreCase("teamdeathmatch")) {
+			splitTeams();
 		}
 		
-		CommandUtils.runCommand("tickrate " + FFA.configUtils.getFloat("tickrate")); // Change Tickrate
+		if (FFA.configUtils.getString(FFA.mapFile.getName() + "_gamemode").equalsIgnoreCase("cores")) {
+			splitTeams();
+	        
+			canRespawnTeam1 = 50;
+			canRespawnTeam2 = 50;
+			
+			World world = Sponge.getServer().getWorlds().iterator().next();
+			
+			crystal1 = (EnderCrystal) world.createEntity(EntityTypes.ENDER_CRYSTAL, FFA.configUtils.getLocation(FFA.mapFile.getName() + "_crystal1").getPosition());
+			crystal1.offer(Keys.INVULNERABLE, true);
+			world.spawnEntity(crystal1);
+			
+			crystal2 = (EnderCrystal) world.createEntity(EntityTypes.ENDER_CRYSTAL, FFA.configUtils.getLocation(FFA.mapFile.getName() + "_crystal2").getPosition());
+			crystal2.offer(Keys.INVULNERABLE, true);
+			world.spawnEntity(crystal2);
+			
+		}
+		
+		CommandUtils.runCommand("tickrate " + FFA.configUtils.getFloat(FFA.mapFile.getName() + "_tickrate")); // Change Tickrate
 		CommandUtils.runCommand("difficulty 1"); // Change Difficulty
 		CommandUtils.runCommand("effect @a clear"); // Clear Effects
 		
 		// Load Vars
-		Location<World> pvpLocation = FFA.configUtils.getLocation("pvp");
-		double spreadPlayerDistance = FFA.configUtils.getFloat("spreadPlayerDistance"); 
-		double spreadPlayerRadius = FFA.configUtils.getFloat("spreadPlayerRadius");
+		Location<World> pvpLocation = FFA.configUtils.getLocation(FFA.mapFile.getName() + "_pvp");
+		double spreadPlayerDistance = FFA.configUtils.getFloat(FFA.mapFile.getName() + "_spreadPlayerDistance"); 
+		double spreadPlayerRadius = FFA.configUtils.getFloat(FFA.mapFile.getName() + "_spreadPlayerRadius");
 		
 		CommandUtils.runCommand("spreadplayers " + pvpLocation.getBlockX() + " " + pvpLocation.getBlockZ() + " "+spreadPlayerDistance+" " + spreadPlayerRadius + " false @a"); // Spread the Players around the map
 		
@@ -98,12 +124,12 @@ public class Game {
 		
 		
 		p.getInventory().clear(); // Clear their Inventory
-		p.setLocation(FFA.configUtils.getLocation("spawn")); // Teleport them to Spawn
+		p.setLocation(p.getWorld().getSpawnLocation()); // Teleport them to Spawn
 		CommandUtils.runCommand("spawnpoint " + p.getName()); // Set their respawn Point to Spawn
 		if (isRunning) { // If the Game is already Running
 			p.offer(Keys.GAME_MODE, GameModes.SPECTATOR); // Set them to Spectator
 			p.sendMessage(Text.of("§b»§7 A game is already running, after the round you will participate")); // Send them a Message
-			CommandUtils.runCommand("tickrate " + FFA.configUtils.getDouble("tickrate") + " " + p.getName()); // Change their Tickrate
+			CommandUtils.runCommand("tickrate " + FFA.configUtils.getDouble(FFA.mapFile.getName() + "_tickrate") + " " + p.getName()); // Change their Tickrate
 		} else {
 			p.offer(Keys.GAME_MODE, GameModes.ADVENTURE); // Set their GameMode to Adventure
 			p.sendMessage(Text.of("§b»§7 Type §a/items §7to see all the items you can get. When you are ready, type §a/ready§7.")); // Send them the Message
@@ -124,14 +150,14 @@ public class Game {
 		if (team2.contains(p.getName())) team2.remove(p.getName());
 		
 		p.offer(Keys.GAME_MODE, GameModes.SPECTATOR); // Set them to Spectator
-		if (FFA.configUtils.getString("gamemode").equalsIgnoreCase("ffa") && players.size() == 1) { // If one Player remains
+		if (FFA.configUtils.getString(FFA.mapFile.getName() + "_gamemode").equalsIgnoreCase("ffa") && players.size() == 1) { // If one Player remains
 			Player winner = Sponge.getServer().getPlayer(players.get(0)).get(); // Get the Winner
 			for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
 				player.sendTitle(Title.of(Text.of(winner.getName() + " won!"))); // Let everyone know!
 			}
 			FFA.statsUtils.updateStats(winner, 0, 0, 1, 1); // Give them a game and a win
 			endGame(); // End The Game
-		} else if (FFA.configUtils.getString("gamemode").equalsIgnoreCase("teamdeathmatch")) {
+		} else if (FFA.configUtils.getString(FFA.mapFile.getName() + "_gamemode").equalsIgnoreCase("teamdeathmatch") || FFA.configUtils.getString(FFA.mapFile.getName() + "_gamemode").equalsIgnoreCase("cores")) {
 			if (team1.size() == 0) {
 				for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
 					player.sendTitle(Title.of(Text.of("Team Red won!"))); // Let everyone know!
@@ -159,12 +185,16 @@ public class Game {
 	 */
 	public static void endGame() {
 		if (!isRunning) return; // Cannot end the Game if it isn't running
+		
+		if (crystal1 != null) crystal1.remove();
+		if (crystal2 != null) crystal2.remove();
+		
 		players.clear(); // Clear the Players
 		team1.clear();
 		team2.clear();
 		KitUtils.inves.clear(); // Reset the Inventories
 		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) { // Every Player
-			player.setLocation(FFA.configUtils.getLocation("spawn")); // Tp to Spawn
+			player.setLocation(player.getWorld().getSpawnLocation()); // Tp to Spawn
 			player.getInventory().clear(); // Clear Inv
 			player.offer(Keys.HEALTH, 20D); // Set HP
 			player.offer(Keys.FOOD_LEVEL, 20); // Set Food

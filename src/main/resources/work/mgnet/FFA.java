@@ -8,7 +8,9 @@ import java.util.Optional;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -16,11 +18,15 @@ import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import com.google.inject.Inject;
 
@@ -33,6 +39,7 @@ import work.mgnet.commands.ReloadmapCommand;
 import work.mgnet.commands.SetItemsCommand;
 import work.mgnet.commands.SetKitCommand;
 import work.mgnet.commands.StatisticsCommand;
+import work.mgnet.utils.CommandUtils;
 import work.mgnet.utils.ConfigurationUtils;
 import work.mgnet.utils.KitUtils;
 import work.mgnet.utils.SoundsUtils;
@@ -47,7 +54,7 @@ public class FFA {
 
 	public static String selectedKit = "default"; // Currently Selected Kit
 	private static Path configDir; // Public Config Direction
-	private static File mapFile; // Public Map Schematic File
+	public static File mapFile; // Public Map Schematic File
 	
 	public static ConfigurationUtils configUtils; //Configuration Utils
 	public static StatsUtils statsUtils; // Stats Utils
@@ -76,17 +83,12 @@ public class FFA {
 	 */
 	@Listener
 	public void onServer(GameStartedServerEvent e) {
+		CommandUtils.runCommand("kill @e[type=EnderCrystal]");
+		
 		try {
 			configUtils = new ConfigurationUtils(privateConfigDir.toFile()); // Set Configuration Utils
 			
 			 // Set Default Settings if they don't exist
-			if (configUtils.getString("map") == null) configUtils.setString("map", "map");
-			if (configUtils.getLocation("spawn").getBlockX() == 0) configUtils.setLocation("spawn", 0, 101, 0);
-			if (configUtils.getFloat("tickrate") == 0f) configUtils.setFloat("tickrate", 10);
-			if (configUtils.getFloat("spreadPlayerDistance") == 0f) configUtils.setFloat("spreadPlayerDistance", 25);
-			if (configUtils.getFloat("spreadPlayerRadius") == 0f) configUtils.setFloat("spreadPlayerRadius", 130);
-			if (configUtils.getString("map") == null) configUtils.setString("map", "TheNile");
-			if (configUtils.getString("hitdelay") == null) configUtils.setString("hitdelay", "false");
 			
 			mapFile = new File(privateConfigDir.toFile(), configUtils.getString("map")); // Set Schematics File
 			
@@ -192,6 +194,26 @@ public class FFA {
 	@Listener
 	public void onDeath(DestructEntityEvent.Death e) {
 		if (e.getTargetEntity().getType() == EntityTypes.PLAYER) { // If a Player died
+			if (configUtils.getString(mapFile.getName() + "_gamemode").equalsIgnoreCase("cores")) {
+				Location<World> pvpLocation = FFA.configUtils.getLocation(mapFile.getName() + "_pvp");
+				double spreadPlayerDistance = FFA.configUtils.getFloat(mapFile.getName() + "_spreadPlayerDistance"); 
+				double spreadPlayerRadius = FFA.configUtils.getFloat(mapFile.getName() + "_spreadPlayerRadius");
+				if (Game.team1.contains(((Player) e.getTargetEntity()).getName()) && Game.canRespawnTeam1 >= 1) {
+					e.setKeepInventory(true);
+					e.setCancelled(true);
+					e.getTargetEntity().offer(Keys.HEALTH, 20.0);
+					((Player) e.getTargetEntity()).sendMessage(Text.of("户7 You may still respawn because your Core is still alive!"));
+					CommandUtils.runCommand("spreadplayers " + pvpLocation.getBlockX() + " " + pvpLocation.getBlockZ() + " "+spreadPlayerDistance+" " + spreadPlayerRadius + " false " + ((Player) e.getTargetEntity()).getName()); // Spread the Players around the map
+					return;
+				} else if (Game.team2.contains(((Player) e.getTargetEntity()).getName()) && Game.canRespawnTeam2 >= 1) {
+					e.setKeepInventory(true);
+					((Player) e.getTargetEntity()).sendMessage(Text.of("户7 You may still respawn because your Core is still alive!"));
+					e.setCancelled(true);
+					e.getTargetEntity().offer(Keys.HEALTH, 20.0);
+					CommandUtils.runCommand("spreadplayers " + pvpLocation.getBlockX() + " " + pvpLocation.getBlockZ() + " "+spreadPlayerDistance+" " + spreadPlayerRadius + " false " + ((Player) e.getTargetEntity()).getName()); // Spread the Players around the map
+					return;
+				}
+			}
 			Game.playerOut((Player) e.getTargetEntity()); // Remove the Player from the Game
 		}
 	}
@@ -214,5 +236,41 @@ public class FFA {
 	 */
 	public static void setMapFile(String map) {
 		mapFile = new File(configDir.toFile(), map); // Set Schematics File
+	}
+	
+	public long noTime = 0L;
+	
+	@Listener
+	public void onDamage(InteractEntityEvent.Primary e) {
+		if (e.getTargetEntity().getType() == EntityTypes.ENDER_CRYSTAL && System.currentTimeMillis() > noTime && configUtils.getString(mapFile.getName() + "_gamemode").equalsIgnoreCase("cores")) {
+			SoundsUtils.playSound(SoundTypes.ENTITY_WITHER_HURT, e.getCause().first(Player.class).get());
+			e.setCancelled(true);
+			noTime = System.currentTimeMillis() + 750L;
+			if (e.getTargetEntity().getLocation().equals(Game.crystal1.getLocation()) && Game.team2.contains(e.getCause().first(Player.class).get().getName())) {
+				Game.canRespawnTeam1--;
+				for (Player p : Sponge.getServer().getOnlinePlayers()) {
+					p.sendMessage(Text.of("户7 The Core of Team Blue is being attacked! " + (Game.canRespawnTeam1 + 1) + " HP"));
+				}
+				if (Game.canRespawnTeam1 <= 0) {
+					((EnderCrystal) e.getTargetEntity()).detonate();
+					SoundsUtils.playSound(SoundTypes.ENTITY_WITHER_DEATH);
+					for (Player p : Sponge.getServer().getOnlinePlayers()) {
+						p.sendMessage(Text.of("户c The Core of Team Blue died"));
+					}
+				}
+			} else if (e.getTargetEntity().getLocation().equals(Game.crystal2.getLocation()) && Game.team1.contains(e.getCause().first(Player.class).get().getName())) {
+				Game.canRespawnTeam2--;
+				for (Player p : Sponge.getServer().getOnlinePlayers()) {
+					p.sendMessage(Text.of("户7 The Core of Team Red is being attacked! " + (Game.canRespawnTeam2 + 1) + " HP"));
+				}
+				if (Game.canRespawnTeam2 <= 0) {
+					((EnderCrystal) e.getTargetEntity()).detonate();
+					SoundsUtils.playSound(SoundTypes.ENTITY_WITHER_DEATH);
+					for (Player p : Sponge.getServer().getOnlinePlayers()) {
+						p.sendMessage(Text.of("户c The Core of Team Red died"));
+					}
+				}
+			} 
+		}
 	}
 }

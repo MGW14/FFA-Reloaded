@@ -24,6 +24,7 @@ public class ItemsCommand implements CommandCallable {
 	 */
 	@Override
 	public CommandResult process(CommandSource source, String arguments) throws CommandException {
+		
 		Player p = (Player) source; // Cast Player
 		if (KitUtils.inves.containsKey(p.getName())) { // If they opened it once
 			p.openInventory(KitUtils.inves.get(p.getName())); // Open The Inventory
