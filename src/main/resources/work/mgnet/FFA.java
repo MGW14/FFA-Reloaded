@@ -249,8 +249,8 @@ public class FFA {
 	public void onPlayerDeath(DestructEntityEvent.Death event) {
 		Player player = (Player) event.getTargetEntity();
 		Lightning bolt = (Lightning) player.getWorld().createEntity(EntityTypes.LIGHTNING, player.getPosition());
-        bolt.setEffect(true);
-        player.getWorld().spawnEntity(bolt);
+        	bolt.setEffect(true);
+        	player.getWorld().spawnEntity(bolt);
     
 	}
 	
