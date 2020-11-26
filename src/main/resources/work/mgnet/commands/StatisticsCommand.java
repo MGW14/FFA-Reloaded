@@ -39,13 +39,18 @@ public class StatisticsCommand implements CommandCallable {
 			source.sendMessage(Text.of("§b» §7Showing Stats of " + player.getName()));
 			source.sendMessage(Text.of("§b» §7Kills: §b" + stats.kills));
 			source.sendMessage(Text.of("§b» §7Deaths: §b" + stats.deaths));
-			source.sendMessage(Text.of("§b» §7K/D: §b" + Math.round((double) stats.kills / ((stats.deaths == 0) ? 1 : stats.deaths))));
+			Double kd = (double) stats.kills / (double) stats.deaths;
+			String kdStr = kd.toString().length() >= 5 ? kd.toString().substring(0, 5) : kd.toString();
+			source.sendMessage(Text.of("§b» §7K/D: §b" + kdStr));
 			source.sendMessage(Text.of("§b» §7Games played: §b" + stats.games));
 			source.sendMessage(Text.of("§b» §7Games won: §b" + stats.gamesWon));
-			source.sendMessage(Text.of("§b» §7Win chance: §b" + ((((double) stats.gamesWon) / ((double) stats.games)) * 100) + "%"));
+			Double winChance = (double) stats.gamesWon / (double) stats.games * 100;
+			String winChanceStr = winChance.toString().length() >= 5 ? winChance.toString().substring(0, 5) : winChance.toString();
+			source.sendMessage(Text.of("§b» §7Win chance: §b" + winChanceStr + "%"));
 		} catch (ArithmeticException e1) {
-			source.sendMessage(Text.of("§b» §7Win chance: Not enough data!"));
+			source.sendMessage(Text.of("§b» §7Not enough data!"));
 		} catch (Exception e) {
+			e.printStackTrace();
 			source.sendMessage(Text.of("§b» §7Couldn't show stats!"));
 		}
 		return CommandResult.builder().successCount(1).build();
