@@ -6,7 +6,7 @@ import org.spongepowered.api.entity.living.player.Player;
 
 public class SoundsUtils {
 	
-	public static void playSound(SoundType sound, float pitch) {
+	public static void playSound(SoundType sound, double pitch) {
 		for (Player p : Sponge.getServer().getOnlinePlayers()) {
 			p.playSound(sound, p.getLocation().getPosition(), 1, pitch);
 		}
