@@ -15,12 +15,14 @@ import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
@@ -30,6 +32,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.google.inject.Inject;
 
 import work.mgnet.commands.FFAConfigCommand;
@@ -131,11 +134,33 @@ public class FFA {
 	}
 	
 	/**
+	 * Let no player go higher than y 220!
+	 * @see Game
+	 */
+	@Listener
+	public void onMove(MoveEntityEvent e) {
+		if (Game.isRunning && e.getToTransform().getPosition().getY() > 220 && e.getTargetEntity().getType() == EntityTypes.PLAYER && ((Player) e.getTargetEntity()).get(Keys.GAME_MODE).get() == GameModes.SURVIVAL) {
+			if (e.getTargetEntity().getType() == EntityTypes.ENDER_PEARL) {
+				e.getTargetEntity().setVelocity(e.getTargetEntity().getVelocity().div(1, 10000, 1).sub(0, 1, 0)); // Make Ender Pearls descent
+				return;
+			}
+			Location<World> loc = e.getTargetEntity().getLocation();
+			Vector3d vec = loc.getPosition();
+			loc.setPosition(new Vector3d(vec.getX(), 215, vec.getZ()));
+		} else if (Game.isRunning && e.getToTransform().getPosition().getX() > 5 && e.getTargetEntity().getType() == EntityTypes.PLAYER && ((Player) e.getTargetEntity()).get(Keys.GAME_MODE).get() == GameModes.SURVIVAL) {
+			Location<World> pvpLocation = FFA.configUtils.getLocation(FFA.mapFile.getName() + "_pvp");
+			double spreadPlayerDistance = FFA.configUtils.getFloat(FFA.mapFile.getName() + "_spreadPlayerDistance"); 
+			double spreadPlayerRadius = FFA.configUtils.getFloat(FFA.mapFile.getName() + "_spreadPlayerRadius");
+			CommandUtils.runCommand("spreadplayers " + pvpLocation.getBlockX() + " " + pvpLocation.getBlockZ() + " "+spreadPlayerDistance+" " + spreadPlayerRadius + " false @a"); // Spread the Players around the map
+			System.out.println("Invalid Spawn");
+		}
+	}
+	
+	/**
 	 * When an Item gets dropped and the game is not running cancel the drop.
 	 */
 	@Listener
 	public void onDrop(DropItemEvent e) {
-		
 		// Cancel Drop Event when the game isn't running
 		e.getCause().first(Player.class).ifPresent((p) -> {
 			if (!Game.isRunning && !p.hasPermission("mgw.bypasslobby")) e.setCancelled(true);

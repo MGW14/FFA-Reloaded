@@ -19,6 +19,7 @@ import org.spongepowered.api.world.World;
 
 import work.mgnet.utils.CommandUtils;
 import work.mgnet.utils.KitUtils;
+import work.mgnet.utils.SchematicUtils;
 import work.mgnet.utils.SoundsUtils;
 
 public class Game {
@@ -69,7 +70,8 @@ public class Game {
 	 * @see CommandUtils
 	 */
 	public static void startGame() {
-		isRunning = true; // Make it Running
+		
+		SchematicUtils.tryPasteSchematic(FFA.getMapFile()); // Load Map
 		
 		SoundsUtils.playSound(SoundTypes.ENTITY_PLAYER_LEVELUP);
 		
@@ -113,6 +115,7 @@ public class Game {
 			player.offer(Keys.EXPERIENCE_LEVEL, 0); // No Levels
 			player.sendMessage(Text.of("§b»§7 The Game has begun. Kill everyone to win")); // Send Message
 		}
+		isRunning = true; // Make it Running
 	}
 	
 	/**
