@@ -26,13 +26,13 @@ public class ReadyCommand implements CommandCallable {
 	public CommandResult process(CommandSource src, String arguments) throws CommandException {
 		if (Sponge.getGame().getServer().getOnlinePlayers().size()==1) { // If 1 Player online
 			// Warn everyone
-			for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) player.sendMessage(Text.of("Â§bÂ»Â§7 At least 2 players are required"));
+			for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) player.sendMessage(Text.of("§b»§7 At least 2 players are required"));
 			return CommandResult.builder().successCount(1).build();
 		}
 		if (Game.players.contains(src.getName()) || Game.isRunning==true) return CommandResult.builder().successCount(1).build(); // If the Game is running or they are already in it
 		Game.players.add(src.getName()); // Add Player
 		
-		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) player.sendMessage(Text.of("Â§bÂ»Â§a " + src.getName() + "Â§7 is now ready!")); // Give everyone that message
+		for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) player.sendMessage(Text.of("§b»§a " + src.getName() + "§7 is now ready!")); // Give everyone that message
 		
 		SoundsUtils.playSound(SoundTypes.BLOCK_NOTE_PLING, ((Game.players.size() / 10) * 2));
 		

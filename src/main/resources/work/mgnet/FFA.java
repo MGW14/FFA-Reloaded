@@ -230,12 +230,12 @@ public class FFA {
 					e.setKeepInventory(true);
 					e.setCancelled(true);
 					e.getTargetEntity().offer(Keys.HEALTH, 20.0);
-					((Player) e.getTargetEntity()).sendMessage(Text.of("Â§bÂ»Â§7 You may still respawn because your Core is still alive!"));
+					((Player) e.getTargetEntity()).sendMessage(Text.of("§b»§7 You may still respawn because your Core is still alive!"));
 					CommandUtils.runCommand("spreadplayers " + pvpLocation.getBlockX() + " " + pvpLocation.getBlockZ() + " "+spreadPlayerDistance+" " + spreadPlayerRadius + " false " + ((Player) e.getTargetEntity()).getName()); // Spread the Players around the map
 					return;
 				} else if (Game.team2.contains(((Player) e.getTargetEntity()).getName()) && Game.canRespawnTeam2 >= 1) {
 					e.setKeepInventory(true);
-					((Player) e.getTargetEntity()).sendMessage(Text.of("Â§bÂ»Â§ You may still respawn because your Core is still alive!"));
+					((Player) e.getTargetEntity()).sendMessage(Text.of("§b»§ You may still respawn because your Core is still alive!"));
 					e.setCancelled(true);
 					e.getTargetEntity().offer(Keys.HEALTH, 20.0);
 					CommandUtils.runCommand("spreadplayers " + pvpLocation.getBlockX() + " " + pvpLocation.getBlockZ() + " "+spreadPlayerDistance+" " + spreadPlayerRadius + " false " + ((Player) e.getTargetEntity()).getName()); // Spread the Players around the map
@@ -297,25 +297,25 @@ public class FFA {
 			if (e.getTargetEntity().getLocation().equals(Game.crystal1.getLocation()) && Game.team2.contains(e.getCause().first(Player.class).get().getName())) {
 				Game.canRespawnTeam1--;
 				for (Player p : Sponge.getServer().getOnlinePlayers()) {
-					p.sendMessage(Text.of("Â§bÂ»Â§7 The Core of Team Blue is being attacked! " + (Game.canRespawnTeam1 + 1) + " HP"));
+					p.sendMessage(Text.of("§b»§7 The Core of Team Blue is being attacked! " + (Game.canRespawnTeam1 + 1) + " HP"));
 				}
 				if (Game.canRespawnTeam1 <= 0) {
 					((EnderCrystal) e.getTargetEntity()).detonate();
 					SoundsUtils.playSound(SoundTypes.ENTITY_WITHER_DEATH);
 					for (Player p : Sponge.getServer().getOnlinePlayers()) {
-						p.sendMessage(Text.of("Â§bÂ»Â§7 The Core of Team Blue died"));
+						p.sendMessage(Text.of("§b»§7 The Core of Team Blue died"));
 					}
 				}
 			} else if (e.getTargetEntity().getLocation().equals(Game.crystal2.getLocation()) && Game.team1.contains(e.getCause().first(Player.class).get().getName())) {
 				Game.canRespawnTeam2--;
 				for (Player p : Sponge.getServer().getOnlinePlayers()) {
-					p.sendMessage(Text.of("Â§bÂ»Â§7 The Core of Team Red is being attacked! " + (Game.canRespawnTeam2 + 1) + " HP"));
+					p.sendMessage(Text.of("§b»§7 The Core of Team Red is being attacked! " + (Game.canRespawnTeam2 + 1) + " HP"));
 				}
 				if (Game.canRespawnTeam2 <= 0) {
 					((EnderCrystal) e.getTargetEntity()).detonate();
 					SoundsUtils.playSound(SoundTypes.ENTITY_WITHER_DEATH);
 					for (Player p : Sponge.getServer().getOnlinePlayers()) {
-						p.sendMessage(Text.of("Â§bÂ»Â§7 The Core of Team Red died"));
+						p.sendMessage(Text.of("§b»§7 The Core of Team Red died"));
 					}
 				}
 			} 

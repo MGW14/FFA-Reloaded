@@ -115,7 +115,19 @@ public class Game {
 			player.offer(Keys.EXPERIENCE_LEVEL, 0); // No Levels
 			player.sendMessage(Text.of("§b»§7 The Game has begun. Kill everyone to win")); // Send Message
 		}
-		isRunning = true; // Make it Running
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				isRunning = true; // Make it Running
+				
+			}
+		}).start();
 	}
 	
 	/**
@@ -188,6 +200,7 @@ public class Game {
 	 */
 	public static void endGame() {
 		if (!isRunning) return; // Cannot end the Game if it isn't running
+		isRunning = false; // Set Game not running
 		
 		if (crystal1 != null) crystal1.remove();
 		if (crystal2 != null) crystal2.remove();
@@ -219,7 +232,6 @@ public class Game {
 	
 		SoundsUtils.playSound(SoundTypes.ENTITY_FIREWORK_BLAST_FAR);
 		
-		isRunning = false; // Set Game not running
 	}
 	
 }
