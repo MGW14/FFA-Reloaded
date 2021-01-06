@@ -139,14 +139,14 @@ public class FFA {
 	 */
 	@Listener
 	public void onMove(MoveEntityEvent e) {
-		if (e.getToTransform().getPosition().getY() > 200 && e.getTargetEntity().getType() == EntityTypes.ENDER_PEARL) {
-			e.getTargetEntity().setVelocity(e.getTargetEntity().getVelocity().div(1, 10000, 1).sub(0, 1, 0)); // Make Ender Pearls descent
-			return;
-		}
-		if (e.getToTransform().getPosition().getY() > 200 && e.getTargetEntity().getType() == EntityTypes.PLAYER && (((Player) e.getTargetEntity()).get(Keys.GAME_MODE).get() == GameModes.SURVIVAL || ((Player) e.getTargetEntity()).get(Keys.GAME_MODE).get() == GameModes.ADVENTURE)) {
+		if (Game.isRunning && e.getToTransform().getPosition().getY() > 220 && e.getTargetEntity().getType() == EntityTypes.PLAYER && ((Player) e.getTargetEntity()).get(Keys.GAME_MODE).get() == GameModes.SURVIVAL) {
+			if (e.getTargetEntity().getType() == EntityTypes.ENDER_PEARL) {
+				e.getTargetEntity().setVelocity(e.getTargetEntity().getVelocity().div(1, 10000, 1).sub(0, 1, 0)); // Make Ender Pearls descent
+				return;
+			}
 			Location<World> loc = e.getTargetEntity().getLocation();
 			Vector3d vec = loc.getPosition();
-			loc.setPosition(new Vector3d(vec.getX(), 150, vec.getZ()));
+			loc.setPosition(new Vector3d(vec.getX(), 215, vec.getZ()));
 		} else if (Game.isRunning && e.getToTransform().getPosition().getX() > 5 && e.getTargetEntity().getType() == EntityTypes.PLAYER && ((Player) e.getTargetEntity()).get(Keys.GAME_MODE).get() == GameModes.SURVIVAL) {
 			Location<World> pvpLocation = FFA.configUtils.getLocation(FFA.mapFile.getName() + "_pvp");
 			double spreadPlayerDistance = FFA.configUtils.getFloat(FFA.mapFile.getName() + "_spreadPlayerDistance"); 
