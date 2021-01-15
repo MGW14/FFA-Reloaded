@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
 
 public class StatsUtils {
 	
@@ -31,13 +29,14 @@ public static File statsFile;
 		public int deaths = 0;
 		public int games = 0;
 		public int gamesWon = 0;
+		public int points = 1000;
 		
 		/**
 		 * Serialize Stats
 		 */
 		@Override
 		public String toString() {
-			return uuid.toString() + ":" + kills + ":" + deaths + ":" + games + ":" + gamesWon;
+			return uuid.toString() + ":" + kills + ":" + deaths + ":" + games + ":" + gamesWon + ":" + points;
 		}
 		
 		/**
@@ -52,6 +51,7 @@ public static File statsFile;
 			stats.deaths = Integer.parseInt(segmentedObj[2]);
 			stats.games = Integer.parseInt(segmentedObj[3]);
 			stats.gamesWon = Integer.parseInt(segmentedObj[4]);
+			stats.points = Integer.parseInt(segmentedObj[5]);
 			return stats;
 		}
 		
@@ -106,7 +106,8 @@ public static File statsFile;
 	 * @param Rank to give
 	 * @param UUID of the Player
 	 */
-	public void updateRank(String rank, UUID uuid) {
+	// YEEEEEEEEEEET
+	/*public void updateRank(String rank, UUID uuid) {
 		Sponge.getServer().getPlayer(uuid).get().sendMessage(Text.of("§b» §aYou advanced to " + rank)); // Message them
 		Sponge.getServer().getServerScoreboard().get().getTeam(rank).get().addMember(Sponge.getServer().getPlayer(uuid).get().getTeamRepresentation()); // Add them to the Team
 		try {
@@ -114,7 +115,7 @@ public static File statsFile;
 		} catch (Exception e) {
 			
 		}
-	}
+	}*/
 	
 	/**
 	 * 
@@ -143,7 +144,8 @@ public static File statsFile;
 			stats.add(stat);
 			
 			// Ranking
-			if (stat.games == 2) {
+			// We YEEEEEEEET the old Ranking
+			/*if (stat.games == 2) {
 				updateRank("beginner", uuid);
 			} else if (stat.games == 20) {
 				if (stat.kills > 4) {
@@ -163,7 +165,7 @@ public static File statsFile;
 				} else {
 					updateRank("pro", uuid);
 				}
-			}
+			}*/
 			
 		} else {
 			stats.add(new Stats(uuid)); // Add new Stats
@@ -226,6 +228,35 @@ public static File statsFile;
 			reader.close();
 		} else {
 			statsFile.createNewFile();
+		}
+	}
+
+	public void updatePoints(Player killer, int points) {
+		UUID uuid = killer.getUniqueId();
+		if (stats.contains(new Stats(uuid))) { // If the Player every playd
+			
+			// Try get them
+			Stats stat = null;
+			for (Stats statO : stats) {
+				if (statO.equals(new Stats(uuid))) stat = statO;
+			}
+			// Add
+			stat.points += points;
+			
+			// Readd
+			stats.remove(stat);
+			stats.add(stat);
+			
+		} else {
+			stats.add(new Stats(uuid)); // Add new Stats
+			updatePoints(killer, points); // Rerun
+		}
+		
+		// Try to Save Stats
+		try {
+			saveStats();
+		} catch (FileNotFoundException e) {
+			System.out.println("Couldn't save stats");
 		}
 	}
 	

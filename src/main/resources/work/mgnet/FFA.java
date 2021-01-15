@@ -47,6 +47,7 @@ import work.mgnet.commands.StatisticsCommand;
 import work.mgnet.utils.CommandUtils;
 import work.mgnet.utils.ConfigurationUtils;
 import work.mgnet.utils.KitUtils;
+import work.mgnet.utils.RankingUtils;
 import work.mgnet.utils.SoundsUtils;
 import work.mgnet.utils.StatsUtils;
 
@@ -186,6 +187,7 @@ public class FFA {
 					// Try to get the Player by using Dirty Code
 					for (Player p : Sponge.getServer().getOnlinePlayers()) {
 						if (e.getCause().getContext().toString().contains(p.getName())) {
+							RankingUtils.onKill(p, (Player) e.getTargetEntity());
 							FFA.statsUtils.updateStats(p.getUniqueId(), 1, 0, 0, 0); // Give the killer a Kill
 							SoundsUtils.playSound(SoundTypes.ENTITY_PLAYER_LEVELUP, p);
 							break; // We found him!

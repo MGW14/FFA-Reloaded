@@ -19,6 +19,7 @@ import org.spongepowered.api.world.World;
 
 import work.mgnet.utils.CommandUtils;
 import work.mgnet.utils.KitUtils;
+import work.mgnet.utils.RankingUtils;
 import work.mgnet.utils.SchematicUtils;
 import work.mgnet.utils.SoundsUtils;
 
@@ -159,6 +160,8 @@ public class Game {
 	public static void playerOut(Player p) {
 		if (!players.contains(p.getName())) return; // If they aren't in the Game quit
 		
+		RankingUtils.onDeath(p);
+		
 		players.remove(p.getName()); // Remove them from the Game
 		
 		if (team1.contains(p.getName())) team1.remove(p.getName());
@@ -168,6 +171,7 @@ public class Game {
 		if (FFA.configUtils.getString(FFA.mapFile.getName() + "_gamemode").equalsIgnoreCase("ffa") && players.size() == 1) { // If one Player remains
 			Player winner = Sponge.getServer().getPlayer(players.get(0)).get(); // Get the Winner
 			for (Player player : Sponge.getGame().getServer().getOnlinePlayers()) {
+				RankingUtils.onWin(player);
 				player.sendTitle(Title.of(Text.of(winner.getName() + " won!"))); // Let everyone know!
 			}
 			FFA.statsUtils.updateStats(winner, 0, 0, 1, 1); // Give them a game and a win
